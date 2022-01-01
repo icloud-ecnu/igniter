@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# warm triton server
+
+/workspace/myclient/real_perf_analyzer $1 $2 $3 $4 $5 $6 -r 1 > warm_log.txt 2>&1
+
+/workspace/myclient/real_perf_analyzer $* > log.txt 2>&1
