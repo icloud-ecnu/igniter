@@ -17,15 +17,15 @@ $ python3 ./igniter-algorithm.py
 ```
 
 ### Download Docker Image From NGC
-Before you can use the Triton Docker image you must install Docker. If you plan on using a GPU for inference you must also install the NVIDIA Container Toolkit.
+We use the Triton as our inference server. Before you can use the Triton Docker image you must install Docker. In order to use a GPU for inference, you must also install the [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker).
 ```
 $ docker pull nvcr.io/nvidia/tritonserver:21.07-py3
 $ docker pull nvcr.io/nvidia/tritonserver:21.07-py3-sdk
 ```
 
-### Process the data into json format
+### Real Input Data
+You can provide data to be used with every inference request made by program in a JSON file. The program will use the provided data in a round-robin order when sending inference requests. Skip this section if you want to use random data, otherwise run the following command to generate a JSON file from a set of real pictures.
 
-If you want to use real data for inference,
 ```
 $ cd i-Gniter/Launch
 $ python3 ./data_transfer.py -c 1000 -d /your/pictures/abspath -j ./input_data -f your_file_name.json
@@ -48,3 +48,5 @@ There is a config file for example:
 ```
 $ python3 ./evaluation.py -c ./config.json -t 10 -s 10
 ```
+
+### Understanding The Output
