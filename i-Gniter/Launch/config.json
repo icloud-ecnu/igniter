@@ -1,0 +1,7 @@
+{
+    "models": ["alexnet_dynamic","resnet50_dynamic","ssd_dynamic"],
+    "rates": [1200,600,50],
+    "slos": [5,15,20],
+    "resources": [30,45,15],
+    "batches": [6,9,1]
+}
