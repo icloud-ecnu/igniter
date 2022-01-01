@@ -24,14 +24,14 @@ $ docker pull nvcr.io/nvidia/tritonserver:21.07-py3-sdk
 ```
 
 ### Real Input Data
-You can provide data to be used with every inference request made by program in a JSON file. The program will use the provided data in a round-robin order when sending inference requests. Skip this section if you want to use random data, otherwise run the following command to generate a JSON file from a set of real pictures.
+You can provide data to be used with every inference request made by program in a JSON file. The program will use the provided data in a round-robin order when sending inference requests. Skip this section if you want to use random data for inference, otherwise run the following command to generate a JSON file from a set of real pictures. You need to prepare those real pictures and put them in a directory. In the addition, the name of the JSON file need to be the same as your model name.
 
 ```
 $ cd i-Gniter/Launch
-$ python3 ./data_transfer.py -c 1000 -d /your/pictures/abspath -j ./input_data -f your_file_name.json
+$ python3 ./data_transfer.py -c 1000 -d /your/pictures/directory -j ./input_data -f json_file_name.json
 ```
 
-### Modify the config.json file for inference
+### Modify The Config JSON File
 There is a config file for example:
 ```
 {
@@ -43,10 +43,14 @@ There is a config file for example:
 }
 ```
 
-### Measure the performance
-
+### Measure The Performance
+If you want to use the random data,
 ```
-$ python3 ./evaluation.py -c ./config.json -t 10 -s 10
+$ python3 ./evaluation.py -t 10 -s 10
+```
+If you want to use the real data,
+```
+$ python3 ./evaluation.py -i ./input_data -t 10 -s 10
 ```
 
 ### Understanding The Output
