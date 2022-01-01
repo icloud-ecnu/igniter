@@ -78,6 +78,13 @@ if __name__ == "__main__":
         default=10,
         help="The time(s) before and after measure slo_vio. "
     )
+    parse.add_argument(
+        "-i",
+        "--input_data",
+        type=str,
+        default=None,
+        help="The directory of the data for inference. "
+    )
 
     FLAGES = parse.parse_args()
     os.system("./clear.py -l")
@@ -92,6 +99,8 @@ if __name__ == "__main__":
     time_5s = FLAGES.time_5s
     config_file = FLAGES.config_file
     strip_time = FLAGES.strip_time
+    input_data = FLAGES.input_data
+
 
     with open(config_file) as f:
         config = json.load(f)
@@ -114,6 +123,8 @@ if __name__ == "__main__":
     cmd += "-t {} ".format(time_5s)
     cmd += "-r " + model_path + " "
     cmd += "-s " + save_dir + " "
+    if input_data is not None:
+        cmd += "-i " + input_data + " "
     os.system(cmd)
     logging.info(cmd)
 
