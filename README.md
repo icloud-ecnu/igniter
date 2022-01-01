@@ -12,6 +12,39 @@ Our iGniter framework comprises three pieces of modules: an inference workload p
 ### Obtaining the GPU resources provisioning plan
 
 ```
-cd i-Gniter
-python3 Algorithm/igniter-algorithm.py
+$ cd i-Gniter/Algorithm
+$ python3 ./igniter-algorithm.py
+```
+
+### Download Docker Image From NGC
+Before you can use the Triton Docker image you must install Docker. If you plan on using a GPU for inference you must also install the NVIDIA Container Toolkit.
+```
+$ docker pull nvcr.io/nvidia/tritonserver:21.07-py3
+$ docker pull nvcr.io/nvidia/tritonserver:21.07-py3-sdk
+```
+
+### Process the data into json format
+
+If you want to use real data for inference,
+```
+$ cd i-Gniter/Launch
+$ python3 ./data_transfer.py -c 1000 -d /your/pictures/abspath -j ./input_data -f your_file_name.json
+```
+
+### Modify the config.json file for inference
+There is a config file for example:
+```
+{
+    "models": ["alexnet_dynamic","resnet50_dynamic","ssd_dynamic"],
+    "rates": [1200,600,50],
+    "slos": [5,15,20],
+    "resources": [30,45,15],
+    "batches": [6,9,1]
+}
+```
+
+### Measure the performance
+
+```
+$ python3 ./evaluation.py -c ./config.json -t 10 -s 10
 ```
