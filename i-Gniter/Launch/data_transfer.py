@@ -131,12 +131,21 @@ if __name__ == "__main__":
         default="input.json",
         help="The file name of output json file. "
     )
+    parse.add_argument(
+        "-k",
+        "--key-name",
+        type=str,
+        required=True,
+        help="The key name of your model input. "
+    )
     FLAGS = parse.parse_args()
 
     count = FLAGS.count
     data_path = FLAGS.data_path
     json_path = FLAGS.json_path
     shape_size = FLAGS.shape_size
+    key_name = FLAGS.key_name
+
     c, h, w = shape_size.split(":")
     c = int(c)
     h = int(h)
@@ -150,7 +159,7 @@ if __name__ == "__main__":
         im = Image.open(pic)
         data = preprocess(im, "FP32", c, h, w)
         if data is not None:
-            jsonfile = addtojson(jsonfile, "data_0", data)
+            jsonfile = addtojson(jsonfile, key_name, data)
             read_count += 1
     print("Success read {} picture files. ".format(read_count))
     save_file_count = json.dumps(jsonfile)

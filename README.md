@@ -28,7 +28,7 @@ You can provide data to be used with every inference request made by program in 
 
 ```
 $ cd i-Gniter/Launch
-$ python3 ./data_transfer.py -c 1000 -d /your/pictures/directory -j ./input_data -f json_file_name.json
+$ python3 ./data_transfer.py -c 1000 -d /your/pictures/directory -j ./input_data -f json_file_name.json -k your_model_key_name
 ```
 
 ### Configuration
