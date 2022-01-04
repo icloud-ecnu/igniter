@@ -16,6 +16,13 @@ $ cd i-Gniter/Algorithm
 $ python3 ./igniter-algorithm.py
 ```
 
+### Download Model Files
+Running the script to download the model files.
+```
+cd i-Gniter/Launch/model/
+./fetch_models.sh
+```
+
 ### Download Docker Image From NGC
 We use the Triton as our inference server. Before you can use the Triton Docker image you must install Docker. In order to use a GPU for inference, you must also install the [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker).
 ```
@@ -53,7 +60,7 @@ If you want to use the real data,
 $ python3 ./evaluation.py -i ./input_data -t 10 -s 10
 ```
 
-### Understanding The Output
+### Understand The Output
 After the program runs, the information and running results of each model will be output on the screen. This slo_vio is expressed as a percentage.
 ```
 alexnet_dynamic:30 6
