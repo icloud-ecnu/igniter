@@ -76,3 +76,5 @@ ssd_dynamic:15 1
 [throughout_per_second, gpu_lantency_ms, avg_lantency_ms]: (50.0, 17.954, 19.178)
 slo_vio: 0.0
 ```
+
+## Publication
