@@ -7,6 +7,9 @@ Our iGniter framework comprises three pieces of modules: an inference workload p
 
 ![](https://github.com/icloud-ecnu/igniter/blob/main/images/prototype.png)
 
+## Model the Inference Performance
+
+
 ## Running
 
 ### Obtaining the GPU resources provisioning plan
@@ -50,7 +53,7 @@ A configuration must specify models, inference arrival rates, SLOs, GPU resource
 }
 ```
 
-### Measure The Performance
+### Measure the Performance
 If you want to use the random data,
 ```
 $ python3 ./evaluation.py -t 10 -s 10
@@ -60,7 +63,7 @@ If you want to use the real data,
 $ python3 ./evaluation.py -i ./input_data -t 10 -s 10
 ```
 
-### Understand The Output
+### Understand the Results
 After the program runs, the information and running results of each model will be output on the screen. This slo_vio is expressed as a percentage.
 ```
 alexnet_dynamic:30 6
