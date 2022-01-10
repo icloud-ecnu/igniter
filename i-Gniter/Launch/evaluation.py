@@ -6,7 +6,7 @@ import json
 import os
 import numpy as np
 
-model_path = "./model/model"
+model_path = "./model"
 save_dir = "./perf_data"
 
 def slo_vio(file_path, slo, strip_time):
