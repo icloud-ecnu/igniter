@@ -20,5 +20,5 @@ mv /tmp/ssd_dynamic ./model/ssd_dynamic
 
 wget -O /tmp/vgg19_dynamic.tar.gz \
      https://i-gniter.s3.amazonaws.com/model/vgg19_dynamic.tar.gz
-(cd /tmp && tar xzf svgg19_dynamic.tar.gz)
+(cd /tmp && tar xzf vgg19_dynamic.tar.gz)
 mv /tmp/vgg19_dynamic ./model/vgg19_dynamic
