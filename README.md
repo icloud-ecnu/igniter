@@ -12,6 +12,12 @@ Our iGniter framework comprises three pieces of modules: an inference workload p
 
 ## Running
 
+### Requirements
+
+```
+$ pip install -r requirements.txt
+```
+
 ### Obtaining the GPU resources provisioning plan
 
 ```
