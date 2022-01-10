@@ -15,7 +15,7 @@ Our iGniter framework comprises three pieces of modules: an inference workload p
 ### Requirements
 
 ```
-$ pip install -r requirements.txt
+$ pip3 install -r requirements.txt
 ```
 
 ### Obtaining the GPU resources provisioning plan
@@ -25,12 +25,23 @@ $ cd i-Gniter/Algorithm
 $ python3 ./igniter-algorithm.py
 ```
 
+```
+0 7.5 500.0
+1 20.0 400.0
+2 30.0 200.0
+id,model,batch,resources
+GPU 1
+[[0, 'alexnet', 4, 10.0], [1, 'resnet50', 8, 30.0], [2, 'vgg19', 6, 37.5]]
+```
+
 ### Download Model Files
 Running the script to download the model files.
 ```
 cd i-Gniter/Launch/model/
 ./fetch_models.sh
 ```
+
+
 
 ### Download Docker Image From NGC
 We use the Triton as our inference server. Before you can use the Triton Docker image you must install Docker. In order to use a GPU for inference, you must also install the [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker).
