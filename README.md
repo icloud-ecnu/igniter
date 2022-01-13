@@ -12,6 +12,8 @@ The execution of DNN inference on the GPU can be divided into three sequential s
 
 ![](https://github.com/icloud-ecnu/igniter/blob/main/images/inference_latency.png)
 
+<div align=center><img width="400" height="200" src="https://github.com/icloud-ecnu/igniter/blob/main/images/inference_latency.png"/></div>
+
 To improve the GPU resource utilization, the data loading phase overlaps with the GPU execution and result feedback phases in the mainstream DNN inference servers (e.g., Triton). Accordingly, we estimate the DNN inference throughput as 
 
 ![](https://github.com/icloud-ecnu/igniter/blob/main/images/throughput.png)
