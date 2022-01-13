@@ -10,29 +10,27 @@ Our iGniter framework comprises three pieces of modules: an inference workload p
 ## Model the Inference Performance
 The execution of DNN inference on the GPU can be divided into three sequential steps: data loading, GPU execution, and result feedback. Accordingly, the DNN inference latency can be calculated by summing up the data loading latency, the GPU execution latency, and the result feedback latency, which is formulated as
 
-![](https://github.com/icloud-ecnu/igniter/blob/main/images/inference_latency.png)
-
-<div align=center><img width="400" height="43" src="https://github.com/icloud-ecnu/igniter/blob/main/images/inference_latency.png"/></div>
+<div align=center><img width="330" height="37" src="https://github.com/icloud-ecnu/igniter/blob/main/images/inference_latency.png"/></div>
 
 To improve the GPU resource utilization, the data loading phase overlaps with the GPU execution and result feedback phases in the mainstream DNN inference servers (e.g., Triton). Accordingly, we estimate the DNN inference throughput as 
 
-![](https://github.com/icloud-ecnu/igniter/blob/main/images/throughput.png)
+<div align=center><img width="200" height="72" src="https://github.com/icloud-ecnu/igniter/blob/main/images/throughput.png"/></div>
 
 We calculate the data loading latency and the result feedback latency as
 
-![](https://github.com/icloud-ecnu/igniter/blob/main/images/transfer_latency.png)
+<div align=center><img width="400" height="63" src="https://github.com/icloud-ecnu/igniter/blob/main/images/transfer_latency.png"/></div>
 
 The GPU execution phase consists of the GPU scheduling delay and kernels running on the allocated SMs. Furthermore, the performance interference can be caused by the reduction of GPU frequency due to the inference workload co-location, which inevitably prolongs the GPU execution phase. Accordingly, we formulate the GPU execution latency as 
 
-![](https://github.com/icloud-ecnu/igniter/blob/main/images/GPU_executing_latency.png)
+<div align=center><img width="170" height="66" src="https://github.com/icloud-ecnu/igniter/blob/main/images/GPU_executing_latency.png"/></div>
 
 The GPU scheduling delay is roughly linear to the number of kernels for a DNN inference workload and there is increased scheduling delay caused by the performance interference on the GPU resource scheduler, which can be estimated as 
 
-![](https://github.com/icloud-ecnu/igniter/blob/main/images/scheduling_delay.png)
+<div align=center><img width="300" height="53" src="https://github.com/icloud-ecnu/igniter/blob/main/images/scheduling_delay.png"/></div>
 
 Given a fixed supply of L2 cache space on a GPU device, a higher GPU L2 cache utilization (i.e., demand) indicates severer contention on the GPU L2 cache space, thereby resulting in a longer GPU active time. Accordingly, we estimate the GPU active time as 
 
-![](https://github.com/icloud-ecnu/igniter/blob/main/images/GPU_active_time.png)
+<div align=center><img width="350" height="65" src="https://github.com/icloud-ecnu/igniter/blob/main/images/GPU_active_time.png"/></div>
 
 ## Running
 
