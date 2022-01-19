@@ -95,7 +95,8 @@ def test_models(model_config_list, repository_path, save_dir, input_data, time_5
         # config batch failed, return
         model_path = os.path.join(repository_path, "model" + str(index))
         # clear file in model path and copy model file in it
-        os.system("rm -rf " + model_path + "/*")
+        os.system("rm -rf " + model_path)
+        os.system("mkdir " + model_path)
         model_name_path = os.path.join(models_path, model)
         os.system("cp -r " + model_name_path + " " + os.path.join(model_path, model))
 
