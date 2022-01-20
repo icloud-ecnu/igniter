@@ -5,6 +5,7 @@ import argparse
 import time
 import logging
 
+
 def stop_all_docker():
     """
     before test or after test
@@ -25,7 +26,7 @@ def create_docker_triton(port1, port2, port3, model_repository):
         port1, port2, port3)
     cmd_create_triton_server += "-v" + model_repository + ":/models "
     cmd_create_triton_server += "nvcr.io/nvidia/tritonserver:21.07-py3 tritonserver "
-    cmd_create_triton_server += "--model-repository=/models "  
+    cmd_create_triton_server += "--model-repository=/models "
     cmd_create_triton_server += "> /dev/null 2>&1 "
     os.system(cmd_create_triton_server)
     logging.info(cmd_create_triton_server)
@@ -53,7 +54,7 @@ def create_docker_triton(port1, port2, port3, model_repository):
 def creat_docker_client(model, rate, port, perf_file, sub_save_dir, input_data_dir, time_5s):
     sub_save_dir = os.path.abspath(sub_save_dir)
     client_dir = os.path.abspath("./client")
-    
+
     cmd_create_client = "docker run -d --rm --ipc=host --net=host "
 
     if input_data_dir is not None:
@@ -68,7 +69,6 @@ def creat_docker_client(model, rate, port, perf_file, sub_save_dir, input_data_d
     cmd_create_client += "--request-distribution constant --request-rate-range {} ".format(
         rate)
     cmd_create_client += "-a --shared-memory system --max-threads 16 -v "
-
     cmd_create_client += "-r {} ".format(time_5s)
 
     if input_data_dir is not None:
@@ -84,10 +84,8 @@ def test_models(model_config_list, repository_path, save_dir, input_data, time_5
     """
     repository_path = os.path.abspath(repository_path)
     save_dir = os.path.abspath(save_dir)
-
     start_port = 8000
     index = 1
-
     models_path = os.path.join(repository_path, "model")
 
     for i in range(len(model_config_list)):
@@ -107,12 +105,12 @@ def test_models(model_config_list, repository_path, save_dir, input_data, time_5
         if config_gpu(float(resource), model_path) is False:
             logging.error("Failed config gpu resource: " + resource)
             return False
-        if create_docker_triton(start_port, start_port+1, start_port+2, model_path) is False:
+        if create_docker_triton(start_port, start_port + 1, start_port + 2, model_path) is False:
             logging.error("Failed to create TRITON server with config: " + model_config_list[i])
             return False
         start_port += 3
         index += 1
-    
+
     start_port = 8000
     index = 1
     for i in range(len(model_config_list)):
@@ -140,8 +138,9 @@ def config_gpu(gpu_resource, model_repository):
         server_id = os.popen("echo get_server_list | nvidia-cuda-mps-control").readlines()[0].strip('\n')
     else:
         server_id = server_id[0].strip('\n')
-    
-    gpu_set_cmd = "echo set_active_thread_percentage {} {} | sudo nvidia-cuda-mps-control".format(server_id, gpu_resource)
+
+    gpu_set_cmd = "echo set_active_thread_percentage {} {} | sudo nvidia-cuda-mps-control".format(server_id,
+                                                                                                  gpu_resource)
     gpu_resource_set = os.popen(gpu_set_cmd).readlines()[0].strip('\n')
 
     if float(gpu_resource_set) != gpu_resource:
@@ -172,7 +171,8 @@ def config_batch(model_path, model_name, batch_size):
             if line.find("preferred_batch_size:") != -1:
                 lines[i] = "preferred_batch_size: [{}]\n".format(batch_size)
                 pre_flag = True
-                logging.debug("{}: model config preferred batch size is settting to {}. ".format(model_name, batch_size))
+                logging.debug(
+                    "{}: model config preferred batch size is settting to {}. ".format(model_name, batch_size))
             if line.find("max_batch_size:") != -1:
                 lines[i] = "max_batch_size: {}\n".format(batch_size)
                 max_flag = True
@@ -221,14 +221,18 @@ if __name__ == "__main__":
         required=False,
         type=int,
         default=1,
-        help="The time(* 5s) each model will running to get the lantency and throught data. "
+        help="The duration time(* 5s) of the inference. "
     )
 
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s',
-                        datefmt='%a %d %b %Y %H:%M:%S', filename='test_inference.log', filemode='a')
-    
-    logging.info("-------- Program test_inference.py is startting. ---------------")
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s %(message)s',
+                        datefmt='%a %d %b %Y %H:%M:%S',
+                        filename='test_inference.log',
+                        filemode='a')
+
+    logging.info("-------- Program test_inference.py is starting. ---------------")
     logging.info("clear the perf_data and log file output in last running. ")
+    os.system("./clear.py")
 
     FLAGS = parse.parse_args()
     model_config_list = FLAGS.model_resource_batch_rate
@@ -236,12 +240,12 @@ if __name__ == "__main__":
     save_dir = FLAGS.save_dir
     input_data = FLAGS.input_data
     time_5s = FLAGS.time_5s
-    
+
     if input_data is None:
         logging.info("Using random data for inference. ")
     else:
         logging.info("Using real data for inference. ")
-    os.system("./clear.py")
+
     stop_all_docker()
     test_models(model_config_list, repository_path, save_dir, input_data, time_5s)
     stop_all_docker()

@@ -13,8 +13,6 @@ parser.add_argument(
 FLAGES = parser.parse_args()
 log_clear = FLAGES.log_clear
 
-#os.system("cp -r --backup=t ./perf_data /root/workspace/i-Gniter/data_eval/GSLICE/gpu4")
-
 os.system("rm -rf ./perf_data/*")
 
 if log_clear:
