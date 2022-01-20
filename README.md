@@ -77,7 +77,10 @@ You can provide data to be used with every inference request made by program in 
 
 ```
 $ cd i-Gniter/Launch
-$ python3 ./data_transfer.py -c 1000 -d /your/pictures/directory -j ./input_data -f json_file_name.json -k your_model_key_name
+$ python3 ./data_transfer.py -c 1000 -d /your/pictures/directory -f resnet50_dynamic.json -k actual_input_resnet50 -s 3:224:224
+$ python3 ./data_transfer.py -c 1000 -d /your/pictures/directory -f vgg19_dynamic.json    -k actual_input_vgg19    -s 3:224:224
+$ python3 ./data_transfer.py -c 1000 -d /your/pictures/directory -f alexnet_dynamic.json  -k actual_input_alexnet  -s 3:224:224
+$ python3 ./data_transfer.py -c 558  -d /your/pictures/directory -f ssd_dynamic.json      -k actual_input_ssd      -s 3:300:300
 ```
 
 ### Configuration
