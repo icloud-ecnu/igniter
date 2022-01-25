@@ -43,8 +43,8 @@ def durationps(openfilepath):
         data = log[1].split(",")
         throughout_per_second = float(data[1])
         gpu_latency_ms = int(data[6]) / 1000
-        avg_latency_ms = (int(data[5]) + int(data[6]) + int(data[7])) / 1000
-    return throughout_per_second, gpu_latency_ms, avg_latency_ms
+        # avg_latency_ms = (int(data[5]) + int(data[6]) + int(data[7])) / 1000
+    return throughout_per_second, gpu_latency_ms
 
 
 def get_perf_file(model, resource, batch):
@@ -138,5 +138,5 @@ if __name__ == "__main__":
         slo_file = os.path.join(os.path.join(save_dir, str(i + 1)), slo_file)
 
         print(models[i] + ":" + str(resources[i]) + " " + str(batches[i]))
-        print("[throughout_per_second, gpu_latency_ms, avg_latency_ms]: {}".format(durationps(perf_file)))
+        print("[throughout_per_second, gpu_latency_ms]: {}".format(durationps(perf_file)))
         print("slo_vio: {}".format(slo_vio(slo_file, slos[i], strip_time)))
