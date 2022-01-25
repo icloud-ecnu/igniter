@@ -48,18 +48,18 @@ $ python3 igniter-algorithm.py
 After you run the script, you will get the GPU resources provisioning plan, which is a JSON config file. The configuration will specify models, inference arrival rates, SLOs, GPU resources and batches.
 ```
 {
-    "models":       ["alexnet_dynamic","resnet50_dynamic","ssd_dynamic"],
-    "rates":        [1200,600,50],
-    "slos":         [5,15,20],
-    "resources":    [30,45,15],
-    "batches":      [6,9,1]
+  "models": ["alexnet_dynamic", "resnet50_dynamic", "vgg19_dynamic"], 
+  "rates": [500, 400, 200], 
+  "slos": [7.5, 20.0, 30.0], 
+  "resources": [10.0, 30.0, 37.5], 
+  "batches": [4, 8, 6]
 }
 ```
 ### Downloading Model Files
 Running the script to download the model files.
 ```
-cd i-Gniter/Launch/model/
-./fetch_models.sh
+$ cd i-Gniter/Launch/model/
+$ ./fetch_models.sh
 ```
 
 ### Downloading Docker Image From NGC
@@ -82,11 +82,11 @@ $ python3 data_transfer.py -c 558  -d /your/pictures/directory -f ssd_dynamic.js
 ### Performance Measurement
 If you want to use the random data,
 ```
-$ python3 evaluation.py -t 10
+$ python3 evaluation.py -t 10 -c ./Algorithm/config_gpu1.json
 ```
 If you want to use the real data,
 ```
-$ python3 evaluation.py -i ./input_data -t 10
+$ python3 evaluation.py -i ./input_data -t 10 -c ./Algorithm/config_gpu1.json
 ```
 
 ### Understanding the Results
