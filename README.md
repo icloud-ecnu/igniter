@@ -45,7 +45,7 @@ $ pip install -r requirements.txt
 $ cd i-Gniter/Algorithm
 $ python3 igniter-algorithm.py
 ```
-After you run the script, you will get the GPU resources provisioning plan, which is a JSON config file. The configuration will specify models, inference arrival rates, SLOs, GPU resources and batches.
+After you run the script, you will get the GPU resources provisioning plan, which is a JSON config file. The configuration will specify models, inference arrival rates, SLOs, GPU resources and batches. The file will be used in Performance Measurement part to measuring performance.
 ```
 {
   "models": ["alexnet_dynamic", "resnet50_dynamic", "vgg19_dynamic"], 
@@ -82,25 +82,25 @@ $ python3 data_transfer.py -c 558  -d /your/pictures/directory -f ssd_dynamic.js
 ### Performance Measurement
 If you want to use the random data,
 ```
-$ python3 evaluation.py -t 10 -c ./Algorithm/config_gpu1.json
+$ python3 evaluation.py -t 10 -c ../Algorithm/config_gpu1.json
 ```
 If you want to use the real data,
 ```
-$ python3 evaluation.py -i ./input_data -t 10 -c ./Algorithm/config_gpu1.json
+$ python3 evaluation.py -i ./input_data -t 10 -c ../Algorithm/config_gpu1.json
 ```
 
 ### Understanding the Results
 After the program runs, the information and running results of each model will be output on the screen. This slo_vio is expressed as a percentage.
 ```
-alexnet_dynamic:30 6
-[throughout_per_second, gpu_latency_ms, avg_latency_ms]: (1200.0, 3.027, 4.216)
-slo_vio: 0.1520136604056474
-resnet50_dynamic:45 9
-[throughout_per_second, gpu_latency_ms, avg_latency_ms]: (599.4, 13.999, 16.078)
-slo_vio: 1.4413063400816462
-ssd_dynamic:15 1
-[throughout_per_second, gpu_lanency_ms, avg_latency_ms]: (50.0, 17.954, 19.178)
-slo_vio: 0.0
+alexnet_dynamic:10.0 4
+[throughout_per_second, gpu_latency_ms]: (500.0, 6.612)
+slo_vio: 0.05 %
+resnet50_dynamic:30.0 8
+[throughout_per_second, gpu_latency_ms]: (400.0, 18.458)
+slo_vio: 0.01 %
+vgg19_dynamic:37.5 6
+[throughout_per_second, gpu_latency_ms]: (199.2, 27.702)
+slo_vio: 0.0 %
 ```
 
 ## Publication

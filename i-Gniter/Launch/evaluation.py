@@ -34,7 +34,7 @@ def slo_vio(file_path, slo, strip_time):
             if latency[i] > slo:
                 slo_vio_count += 1
 
-    return 100.0 * slo_vio_count / total_count
+    return round(100.0 * slo_vio_count / total_count, 2)
 
 
 def durationps(openfilepath):
@@ -139,4 +139,4 @@ if __name__ == "__main__":
 
         print(models[i] + ":" + str(resources[i]) + " " + str(batches[i]))
         print("[throughout_per_second, gpu_latency_ms]: {}".format(durationps(perf_file)))
-        print("slo_vio: {}".format(slo_vio(slo_file, slos[i], strip_time)))
+        print("slo_vio: {} %".format(slo_vio(slo_file, slos[i], strip_time)))
