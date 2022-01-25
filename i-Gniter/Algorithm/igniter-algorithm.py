@@ -21,12 +21,10 @@ class Context:
     kernels=[20,80,29,93]
     unit=2.5
     step=40
-    bandwidth=15
-    '''
-    def __init__(self,f,po):
-        self.frequency = f
-        self.power = po
-    '''
+    bandwidth=10
+    powerp=[]
+    idlef=[]
+
 class Model:
     name="alexnet"
     kernels=29
@@ -42,9 +40,6 @@ class Model:
     tmpl2cache=0
     inputdata=1000
     outputdata=1000
-    #batch size 1
-    def p(self):
-        print(self.name,self.kernels,self.baseidle,self.act_popt,self.l2cache,self.k_l2)
 
 
 context=Context()
@@ -90,38 +85,30 @@ def power_frequency(power,frequency):
             #print(yp)
             return popt
 
+def idle_f(n_i,alpha_sch,beta_sch):
+    return alpha_sch*n_i+beta_sch
+
 def idletime(idletime,frequency):
-    # use : np.polyval(f1, number of processes)
+    # use : idle_f(number of inference workloads, popt[0], popt[1])
     # vgg19
     l=len(idletime)
     vgg19=[0]*l
     for i in range(l):
         vgg19[i]=idletime[i]*frequency[i]/1530
-    #vgg19=[i/29 for i in idletime]
     fp=[]
     x=np.array([2,3,4,5])
     for i in range(1,len(vgg19)):
         fp.append(vgg19[i]-vgg19[0])
     fp=np.array(fp)
     #print(x,fp)
-    f1 = np.polyfit(x, fp, 1)
-    yvals=np.polyval(f1, [2,3,4,5])
-    #print(f1)
-    #print(yvals)
-    return f1
+    popt, pcov = curve_fit(idle_f, x, fp)
+    return popt
 
 def activetime_func(x,k1,k2,k3,k4,k5):
     r=(k1*x[0]**2+k2*x[0]+k3)/(x[1]+k4)+k5
     #return r.ravel()
     return r
-'''
-def activetime_func(x,k2,k3,k4,k5):
-    r=(k2*x[0]+k3)/(x[1]+k4)+k5
-    #return r.ravel()
-    return r
-'''
-def compute_idletime(kernels):
-    return 1
+
 
 
 def activetime(gpulatency,frequency,baseidletime):
@@ -172,44 +159,13 @@ def power_l2cache(power,gpulatency,baseidletime,idlepower,l2caches,frequency):
     
     return popt_p, popt_c
 
-def solo_power(popt,power,gpulatency,baseidletime,p_f):
-    #power gpulatecny t50 
-    #power[thread][batchsize]
-    #popt act_popt
-    power_t50=[]
-    gpulatency_t50=[]
-    for i in range(len(context.batchsize)):
-        power_t50.append(power[i][1]-context.idlepower)
-        gpulatency_t50.append(gpulatency[i][1])
-    #power_t50=[i-context.idlepower for i in power]
-    l=len(gpulatency_t50)
-    th_t50=[context.batchsize[i]/gpulatency_t50[i]*1000 for i in range(l)]
-    k=(power_t50[l-1]-power_t50[0])/(th_t50[l-1]-th_t50[0])
-    solo_power={}
-    solo_power[50.0]={}
-    for i in range(1,context.batchsize[-1]+1):
-        act=activetime_func([i,50], popt[0], popt[1], popt[2], popt[3], popt[4])
-        th=i/(act+baseidletime)*1000
-        solo_power[50.0][i]=(th-th_t50[0])*k+power_t50[0]
-        #print(solo_power[50.0][i],throughput,throughput_t50[0],power_t50[0],k)
-        for j in range(1,context.step+1):
-            tmpt=j*context.unit
-            if tmpt not in solo_power:
-                solo_power[tmpt]={}
-            if(tmpt!=50.0):
-                #print(tmpt)
-                solo_power[tmpt][i]=act*solo_power[50.0][i]/activetime_func([i,tmpt], popt[0], popt[1], popt[2], popt[3], popt[4])
-
-    #print(solo_power)
-    return solo_power
-
-def predict(models,batchsize,thread,idlef,powerp):
-    # batchsize [[gpulatency] ,[inference latency]]
+def predict(models,batchsize,thread):
+    # batchsize [[throughput] ,[inference latency]]
     p=len(models)
     ans=[[],[]]
     increasing_idle=0
     if(p>=2):
-        increasing_idle=np.polyval(idlef, p)
+        increasing_idle=idle_f(p, context.idlef[0], context.idlef[1])
     total_l2cache=0
     total_power=context.idlepower
     frequency=context.frequency
@@ -223,7 +179,7 @@ def predict(models,batchsize,thread,idlef,powerp):
         tmpcache.append(tmpl2cache)
         total_l2cache+=tmpl2cache
     if(total_power>300):
-        frequency=p_f(total_power,powerp[0])
+        frequency=p_f(total_power,context.powerp[0])
     for i in range(len(models)):
         m=models[i]
         idletime=m.kernels*increasing_idle+m.baseidle
@@ -235,7 +191,7 @@ def predict(models,batchsize,thread,idlef,powerp):
         #print(idletime,frequency,context.frequency)
         #print("inference_latency",inference_latency)
         #print(gpu_latency)
-        ans[0].append(gpu_latency)
+        ans[0].append(batchsize[i]*1000/(gpu_latency+m.outputdata*batchsize[i]/context.bandwidth))
         ans[1].append(gpu_latency+(m.inputdata+m.outputdata)*batchsize[i]/context.bandwidth)
         #print(total_power,tact_solo,activetime,idletime)
     #print("latency",ans)
@@ -268,34 +224,42 @@ def durationps(openfilepath):
             print("Duration time is too short!")
 
 
-def canadded(inference,batch,resource,idlef,powerp,slo):
+def r_total(ra_ij,j):
+    ans=0
+    for ra_i in ra_ij:
+        ans+=ra_i[j]
+    return ans
+
+
+def alloc_gpus(inference,batch,slo,ra_ij,r_lower,w,j):
+    flag=1
+    ra_ij[w][j]=r_lower
+
     addinferece=[]
     addbatch=[]
     addresource=[]
-    for mi in range(len(resource)):
-        if(resource[mi]>0):
-            addinferece.append(inference[mi])
-            addbatch.append(batch[mi])
-            addresource.append(resource[mi])
-    ans=[True] * len(inference)
-    #if(len(addinferece)==1):
-    #    return ans
-    latency=predict(addinferece,addbatch,addresource,idlef,powerp)[1]
-    #print("predict",latency,addbatch,addresource)
-    li=0
-    for mi in range(len(resource)):
-        #print(resource,slo)
-        #print(latency)
-        if(resource[mi]>0):
-            if(latency[li]>slo[mi]):
-                ans[mi]=False
-            li+=1
-        #if(resource>100):
-        #    print("workload is too large")
-    #print("tr",ans)
-    return ans
+    trans=[]
+    for i in range(len(ra_ij)):
+        if(ra_ij[i][j]>0):
+            addinferece.append(inference[i])
+            addbatch.append(batch[i])
+            addresource.append(ra_ij[i][j])
+            trans.append(i)
 
-def algorithm(inference,slo,arrivate,idlef,powerp):
+    while(np.sum(addresource)<=100 and flag==1):
+        flag=0
+        latency=predict(addinferece,addbatch,addresource)[1]
+        for a in range(len(trans)):
+            if(latency[a]>slo[trans[a]]):
+                addresource[a]+=context.unit
+                flag=1
+    
+    for a in range(len(trans)):
+        ra_ij[trans[a]][j]=addresource[a]
+    return ra_ij
+
+
+def algorithm(inference,slo,rate):
     #inference: models
     slo=[i/2 for i in slo]
     m=len(inference)
@@ -304,7 +268,7 @@ def algorithm(inference,slo,arrivate,idlef,powerp):
     r_lower=[[i,0] for i in range(m)]
     #print("batch",m,batch)
     # arrivate ips 
-    arrivate=[i/1000 for i in arrivate]
+    arrivate=[i/1000 for i in rate]
     for i in range(m):
         inf=inference[i]
         #print("slo",slo[i],"ar",arrivate[i],"b",context.bandwidth,"data",inf.inputdata,inf.outputdata)
@@ -313,7 +277,7 @@ def algorithm(inference,slo,arrivate,idlef,powerp):
         delta=slo[i]-inf.baseidle-batch[i]*(inf.inputdata+inf.outputdata)/context.bandwidth-inf.act_popt[4]
         #print(gama-inf.act_popt[4]*delta,inf.act_popt[3]*delta*context.unit)
         r_lower[i][1]=math.ceil((gama/delta-inf.act_popt[3])/context.unit)*context.unit
-    v=1
+    g=1
     for r_l in r_lower:
         if(r_l[1]>100):
             print("workload is too large!")
@@ -323,70 +287,49 @@ def algorithm(inference,slo,arrivate,idlef,powerp):
     r_lower.sort(key=lambda x:x[1], reverse=True)
     for ti in r_lower:
         i=ti[0]
+        r_l=ti[1]
         #print(ti,"ti")
-        inter=[100] * v
+        inter=[100] * g
         ra_ij=copy.deepcopy(resource)
-        flag=False
-        for j in range(0,v):
-            ra_j=0
-            for inf in range(m):
-                ra_j+=resource[inf][j]
-            r_t=ra_j+ti[1]
-            ra_ij[i][j]=ti[1]
-            #print("ra_j[j]",ra_j,"i",i,"j",j,"ra_ij",ra_ij,"resource",resource)
-            #print("r_t",r_t)
-            #ad=0
-            while(r_t<101):
-                #tmpinferece=copy(inference)
-                #tmpbatch=copy(batch)
-                tmpresource=[tmp[j] for tmp in ra_ij]
-                add=canadded(inference,batch,tmpresource,idlef,powerp,slo)
-                c=True
-                for d in add:
-                    c=c and d
-                #print("c",c)
-                #print("r_t",r_t,c)
-                #if(ad>1):
-                #    break
-                #ad+=1
-                if(c):
-                    inter[j]=r_t-(ra_j+ti[1])
-                    flag=True
-                    #print("inter",inter[j])
-                    break
-                else:
-                    for tmp in range(m):
-                        if(not add[tmp]):
-                            ra_ij[tmp][j]+=context.unit
-                            r_t+=context.unit
-        mini=min(inter)
-        #print("mini",mini,resource,flag)
-        j=inter.index(mini)
-        #print("jv",inter,v)
-        if(flag):
-            for inf in range(m):
-                resource[inf][j]=ra_ij[inf][j]
+        q=-1
+        r_inter_min=100
+        for j in range(g):
+            ra_ij=alloc_gpus(inference,batch,slo,ra_ij,r_l,i,j)
+            r_inter=r_total(ra_ij,j)-r_total(resource,j)
+            if(r_total(ra_ij,j)<=100 and r_inter<r_inter_min):
+                q=j
+                r_inter_min=r_inter
+        if(q==-1):
+            g+=1
+            resource[i][g-1]=r_l
         else:
-            v+=1
-            #print(i,"r_lower",r_lower,v)
-            resource[i][v-1]=ti[1]
-        #print("resource",resource)
-    #print("batch",batch)
-    #print("resource",resource)
+            for p in range(len(ra_ij)):
+                resource[p][q]=ra_ij[p][q]
+
+        
     lr=len(resource)
     #print("r_lower",r_lower)
     for i in range(lr):
-        print(i,slo[i],arrivate[i]*1000)
+        print(i,slo[i],rate[i]*1000)
     print("id,model,batch,resources")
-    for i in range(lr):
+    for j in range(lr):
         ans=[]
-        for j in range(lr):
-            if(resource[j][i]!=0):
-                ans.append([j,inference[j].name,batch[j],resource[j][i]])
+        conf={"models":[],"rates":[],"slos":[],"resources":[],"batches":[]}
+        for i in range(lr):
+            if(resource[i][j]!=0):
+                ans.append([i,inference[i].name,batch[i],resource[i][j]])
+                conf["models"].append(inference[i].name)
+                conf["rates"].append(rate[i])
+                conf["slos"].append(slo[i])
+                conf["resources"].append(resource[i][j])
+                conf["batches"].append(batch[i])
         if(ans==[]):
             break
-        print("GPU",i+1)
+
+        print("GPU",j+1)
         print(ans)
+        with open("./config_gpu"+str(j+1)+".json","w") as f:
+            json.dump(conf,f)
         
 
 if __name__ == '__main__':
@@ -395,8 +338,8 @@ if __name__ == '__main__':
     context.bandwidth=10000000
 
     context.idlepower=profile["hardware"]["idlepower"]
-    powerp=power_frequency(profile["hardware"]["power"], profile["hardware"]["frequency"])
-    idlef=idletime(profile["hardware"]["idletime"],profile["hardware"]["frequency"])
+    context.powerp=power_frequency(profile["hardware"]["power"], profile["hardware"]["frequency"])
+    context.idlef=idletime(profile["hardware"]["idletime"],profile["hardware"]["frequency"])
     #print(context.idlepower,context.bandwidth,idlef,powerp)
     model_par={}
     models=[]
@@ -411,22 +354,20 @@ if __name__ == '__main__':
         m.outputdata=profile[i]["outputdata"]
         j+=1
         m.l2cache=profile[i]["l2cache"]
-        #m.k_l2=((profile[i]["activetime_5"]*profile[i]["frequency_5"]/context.frequency)/profile[i]["activetime_1"]-1)/(4*m.l2cache)
-        #print(profile[i]["activetime_2"],profile[i]["frequency_2"],context.frequency,profile[i]["activetime_1"],m.l2cache)
         m.k_l2=((profile[i]["activetime_2"]*profile[i]["frequency_2"]/context.frequency)/profile[i]["activetime_1"]-1)/(m.l2cache)
         #print("L2",m.k_l2)
         m.act_popt=activetime(profile[i]["gpulatency"],profile[i]["frequency"],profile[i]["idletime_1"])
-        #m.act_popt=profile[i]["popt"]
-        #m.powers=solo_power(m.act_popt,profile[i]["power"],profile[i]["gpulatency"],profile[i]["idletime_1"],powerp)
         m.power_popt, m.l2cache_popt=power_l2cache(profile[i]["power"],profile[i]["gpulatency"],m.baseidle,context.idlepower,profile[i]["l2caches"],profile[i]["frequency"])
         models.append(m)
         model2[i]=m
-        #m.p()
+
 
     #motivation example
     #model0: AlexNet, model1: ResNet-50, model2: VGG-19
-    models=[models[0],models[1],models[2]]
+    workloads=[models[0],models[1],models[2]]
     SLOs=[15,40,60]
     rates=[500,400,200]
 
-    algorithm(models,SLOs,rates,idlef,powerp)
+    algorithm(workloads,SLOs,rates)
+
+
