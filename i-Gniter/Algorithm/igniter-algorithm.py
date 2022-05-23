@@ -23,12 +23,9 @@ class Context:
 class Model:
     name = "alexnet"
     kernels = 29
-    # power=100
     baseidle = 0.1
-    # act_popt[0-4] k1-k5
     act_popt = []
     l2cache = 0
-    # powers=[]
     power_popt = []
     l2cache_popt = []
     k_l2 = 1
@@ -46,10 +43,8 @@ def loadprofile(path):
         for line in file:
             data = json.loads(line)
             for key in data:
-                # profile.update(data)
                 if key not in profile:
                     profile[key] = data[key]
-                    # profile[key]=copy.deepcopy(data[key])
                 else:
                     profile[key].update(data[key])
     return profile
@@ -289,7 +284,7 @@ def algorithm(inference, slo, rate):
 
     lr = len(resource)
     for i in range(lr):
-        print(i, slo[i], rate[i] * 1000)
+        print(i, slo[i], rate[i])
     print("id,model,batch,resources")
     for j in range(lr):
         ans = []
