@@ -36,14 +36,14 @@ Given a fixed supply of L2 cache space on a GPU device, a higher GPU L2 cache ut
 
 ### Requirements
 ```
-$ cd i-Gniter
-$ python3 -m pip install --upgrade pip
-$ pip install -r requirements.txt
+cd i-Gniter
+python3 -m pip install --upgrade pip
+pip install -r requirements.txt
 ```
 ### Obtaining the GPU resources provisioning plan
 ```
-$ cd i-Gniter/Algorithm
-$ python3 igniter-algorithm.py
+cd i-Gniter/Algorithm
+python3 igniter-algorithm.py
 ```
 After you run the script, you will get the GPU resources provisioning plan, which is a JSON config file. The configuration will specify models, inference arrival rates, SLOs, GPU resources and batches. The file will be used in Performance Measurement part to measuring performance.
 ```
@@ -58,35 +58,35 @@ After you run the script, you will get the GPU resources provisioning plan, whic
 ### Downloading Model Files
 Running the script to download the model files.
 ```
-$ cd i-Gniter/Launch/model/
-$ ./fetch_models.sh
+cd i-Gniter/Launch/model/
+./fetch_models.sh
 ```
 
 ### Downloading Docker Image From NGC
 We use the Triton as our inference server. Before you can use the Triton Docker image you must install Docker. In order to use a GPU for inference, you must also install the [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker).
 ```
-$ docker pull nvcr.io/nvidia/tritonserver:21.07-py3
-$ docker pull nvcr.io/nvidia/tritonserver:21.07-py3-sdk
+docker pull nvcr.io/nvidia/tritonserver:21.07-py3
+docker pull nvcr.io/nvidia/tritonserver:21.07-py3-sdk
 ```
 
 ### Real Input Data
 You can provide data to be used with every inference request made by program in a JSON file. The program will use the provided data in a round-robin order when sending inference requests. Skip this section if you want to use random data for inference, otherwise run the following command to generate JSON files from a set of real pictures. You need to prepare your own real pictures. In the addition, the name of JSON files need to be the same as your model name.
 ```
-$ cd i-Gniter/Launch
-$ python3 data_transfer.py -c 1000 -d /your/pictures/directory -f resnet50_dynamic.json -k actual_input_resnet50 -s 3:224:224
-$ python3 data_transfer.py -c 1000 -d /your/pictures/directory -f vgg19_dynamic.json    -k actual_input_vgg19    -s 3:224:224
-$ python3 data_transfer.py -c 1000 -d /your/pictures/directory -f alexnet_dynamic.json  -k actual_input_alexnet  -s 3:224:224
-$ python3 data_transfer.py -c 558  -d /your/pictures/directory -f ssd_dynamic.json      -k actual_input_ssd      -s 3:300:300
+cd i-Gniter/Launch
+python3 data_transfer.py -c 1000 -d /your/pictures/directory -f resnet50_dynamic.json -k actual_input_resnet50 -s 3:224:224
+python3 data_transfer.py -c 1000 -d /your/pictures/directory -f vgg19_dynamic.json    -k actual_input_vgg19    -s 3:224:224
+python3 data_transfer.py -c 1000 -d /your/pictures/directory -f alexnet_dynamic.json  -k actual_input_alexnet  -s 3:224:224
+python3 data_transfer.py -c 558  -d /your/pictures/directory -f ssd_dynamic.json      -k actual_input_ssd      -s 3:300:300
 ```
 
 ### Performance Measurement
 If you want to use the random data,
 ```
-$ python3 evaluation.py -t 10 -c ../Algorithm/config_gpu1.json
+python3 evaluation.py -t 10 -c ../Algorithm/config_gpu1.json
 ```
 If you want to use the real data,
 ```
-$ python3 evaluation.py -i ./input_data -t 10 -c ../Algorithm/config_gpu1.json
+python3 evaluation.py -i ./input_data -t 10 -c ../Algorithm/config_gpu1.json
 ```
 
 ### Understanding the Results
