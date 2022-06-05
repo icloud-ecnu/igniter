@@ -303,8 +303,7 @@ def algorithm(inference,slo,rate):
     
 
 if __name__ == '__main__':
-    profile=loadprofile("D:\\code\\python\\论文\\config.json")
-    #profile=loadprofile("./config.json")
+    profile=loadprofile("./config")
 
     context.bandwidth=10000000
 
