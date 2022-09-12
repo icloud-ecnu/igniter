@@ -10,7 +10,7 @@ class Context:
     idlepower=52
     batchsize=[1,16,32]
     thread=[10,50,100]
-    models=["alexnet","resnet50","vgg19","ssd"]
+    models=["alexnet_dynamic","resnet50_dynamic","vgg19_dynamic","ssd_dynamic"]
     kernels=[20,80,29,93]
     unit=2.5
     step=40
