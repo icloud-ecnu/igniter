@@ -290,7 +290,7 @@ def algorithm(inference,slo,rate):
             conf["rates"].append(rate[inf[0]])
             conf["slos"].append(slo[inf[0]])
             conf["resources"].append(inf[1])
-            conf["batches"].append(inf[0])
+            conf["batches"].append(batch[inf[0]])
         if(ans==[]):
             break
 
