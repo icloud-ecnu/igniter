@@ -364,12 +364,9 @@ if __name__ == '__main__':
         type=str,
     )
     FLAGS = parse.parse_args()
-    workloads = [models[0], models[1], models[2]]
-    SLOs = [15, 40, 60]
-    rates = [500, 400, 200]
-    # SLOs = [int(x) for x in FLAGS.slos.split(":")]
-    # rates = [int(x) for x in FLAGS.rates.split(":")]
-    # workloads = [models[0], models[1], models[2], models[3]]
+    SLOs = [int(x) for x in FLAGS.slos.split(":")]
+    rates = [int(x) for x in FLAGS.rates.split(":")]
+    workloads = [models[0], models[1], models[2], models[3]]
     with open(fileName, 'a', encoding='utf-8') as file:
         file.write("\n=======模型配置============\n")
         for i in range(len(SLOs)):
@@ -377,3 +374,6 @@ if __name__ == '__main__':
         file.write("=====配置方案=====\n")
     dfsAns(0, [], workloads, SLOs, rates)
     printGPUAllocation(best_gpu_allocate)
+
+
+
