@@ -1,0 +1,12 @@
+
+=======模型配置============
+modelName = alexnet_dynamic SLOS = 15 rates = 500
+modelName = resnet50_dynamic SLOS = 40 rates = 400
+modelName = vgg19_dynamic SLOS = 60 rates = 200
+=====配置方案=====
+
+=======模型配置============
+modelName = alexnet_dynamic SLOS = 15 rates = 500
+modelName = resnet50_dynamic SLOS = 40 rates = 400
+modelName = vgg19_dynamic SLOS = 60 rates = 200
+=====配置方案=====

@@ -219,7 +219,7 @@ def r_total(ra_j):
 def alloc_gpus(inference, batch, slo, ra_ij, r_lower, w, j):
     flag = 1
     ra_ij[j].append([w, r_lower])
-    if r_total(ra_ij[j]) > 100:
+    if r_total(ra_ij[j]) > 100: # 如果该GPU上的所有模型的资源之和超过了100
         return ra_ij
     addinferece = []
     addbatch = []
@@ -231,11 +231,11 @@ def alloc_gpus(inference, batch, slo, ra_ij, r_lower, w, j):
         addbatch.append(batch[infwork[0]])
         addresource.append(infwork[1])
 
-    while (np.sum(addresource) <= 100 and flag == 1):
+    while np.sum(addresource) <= 100 and flag == 1: # 增加一个负载之后，可能预测之后其他模型的latency发生变化，所以就要一直修改，直到所有模型的latency都满足要求
         flag = 0
         latency = predict(addinferece, addbatch, addresource)[1]
         for i in range(num_workloads):
-            if (latency[i] > slo[ra_ij[j][i][0]]):
+            if latency[i] > slo[ra_ij[j][i][0]]:
                 addresource[i] += context.unit
                 flag = 1
 
@@ -279,7 +279,7 @@ def algorithm(inference, slo, rate):
         ra_ij = copy.deepcopy(resource)  # 表示把i这个模型放置到j这个GPU上被分配的GPU resource
         q = -1  # q表示i这个模型被分配到的GPU id
         r_inter_min = 101  # 最小的干扰
-        for j in range(g):# 。。。
+        for j in range(g):
             ra_ij = alloc_gpus(inference, batch, slo, ra_ij, r_l, i, j)
             r_inter = r_total(ra_ij[j]) - r_total(resource[j])
             if r_total(ra_ij[j]) <= 100 and r_inter < r_inter_min:

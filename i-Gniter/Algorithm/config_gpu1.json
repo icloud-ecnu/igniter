@@ -1,0 +1,1 @@
+{"models": ["vgg19_dynamic", "resnet50_dynamic", "alexnet_dynamic"], "rates": [200, 400, 500], "slos": [30.0, 20.0, 7.5], "resources": [37.5, 30.0, 10.0], "batches": [6, 8, 4]}
