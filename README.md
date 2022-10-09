@@ -44,11 +44,20 @@ pip install -r requirements.txt
 
 * Generating model:
 
-  Call `python3 alexnet_onnx.py` to modify the parameters inside, respectively generate `Alexnet` `Resnet` `vgg19` `ssd` [ssd obtained from nvidia]
+  Call `python3 alexnet_onnx.py` to modify the parameters inside, respectively generate `Alexnet` `Resnet` `vgg19` .The ssd model can be obtained through `ssd_onnx.py` 
+
+  ~~~shell
+  cd i-Gniter/Profile
+  python3 alexnet_onnx.py
+  ~~~
 
   Note that the generated model naming is consistent
 
 * Start `start.sh` for initialization, and re-run each time, such as: MPSID, model_shape...
+
+  ~~~shell
+  source start.sh
+  ~~~
 
 * Manually configure some parameters:
 
@@ -56,9 +65,19 @@ pip install -r requirements.txt
 
 * Find hardware parameters, call `./power_t_freq`
 
+  ~~~shell
+  ./power_t_freq
+  ~~~
+
 * Find the kernel of different instances
 
   * Calling the `l2cache` script, you can find the kernel of the model
+
+  ~~~shell
+  ./l2cache alexnet # Take the alexnet model as an example
+  ~~~
+
+  Below is the number of kernels for the four models under V100：
 
   ~~~
   model kernel 
@@ -68,14 +87,35 @@ pip install -r requirements.txt
   vgg19 29
   ~~~
 
-  * After getting all instance kernels, modify the kernel configuration in the `sepper.py` file
+  * After getting all instance kernels, modify the kernel configuration in the `sepper.py` file.Modify the number of kernels corresponding to the model in the `sepper.py` file
 
 * Find the configuration for each instance
 
   * Call `./soloinference {model_name}` to find `idletime_1` , `activetime_1`, `transferdata` three parameters.
+  
+    ~~~shell
+    ./soloinference alexnet # Take the alexnet model as an example
+    ~~~
+  
   * Call `./multiinference {model_name}` to find `activetime_5`, `power_5`, `frequency_5` three parameters.
+  
+    ~~~shell
+    ./multiinference alexnet
+    ~~~
+  
   * Call `./l2cache {model_name}` to find one parameter of `l2cache`.
+  
+    ~~~shell
+    ./l2cache alexnet
+    ~~~
+  
   * Call `./recordpower.sh {model_name}` to find `gpulatency`, `inferencelatency`, `power`, `frequency` four parameters.
+  
+    ~~~shell
+    ./recordpower.sh alexnet
+    ~~~
+
+* Finally, for some models that require l2cache in the case of different resources and batches, at this time, the specific resource and batch values in the `l2cache` file are required, and then this method is called and manually added to the config file.
 
 The configured file is shown in `i-Gniter/Algorithm/config`, which is the result of running on the V100 GPU.
 
