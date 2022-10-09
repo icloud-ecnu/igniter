@@ -1,6 +1,6 @@
 #!/bin/bash
 mpsid=$MPSID
-nvidia-smi -lgc 1530
+nvidia-smi -lgc $1
 nvidia-smi dmon -f data/dmon_vgg19_t20 &
 sleep 1
 echo set_active_thread_percentage "$mpsid" 20 | nvidia-cuda-mps-control

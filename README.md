@@ -40,82 +40,88 @@ cd i-Gniter
 python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
-### i-Gniter profiling
+### Profiling
 
-* Generating model:
-
-  Call `python3 alexnet_onnx.py` to modify the parameters inside, respectively generate `Alexnet` `Resnet` `vgg19` .The ssd model can be obtained through `ssd_onnx.py` 
+* Generating models:
 
   ~~~shell
   cd i-Gniter/Profile
-  python3 alexnet_onnx.py
+  python3 model_onnx.py
+  python3 ssd_onnx.py
   ~~~
 
-  Note that the generated model naming is consistent
-
-* Start `start.sh` for initialization, and re-run each time, such as: MPSID, model_shape...
+* Start `start.sh` for initialization:
 
   ~~~shell
   source start.sh
   ~~~
 
-* Manually configure some parameters:
-
-  * `./power_t_freq` : nvidia-smi -lgc 1530, this 1530 is the highest frequency of the V100 GPU, pay attention to manual configuration when configuring different GPU types
-
-* Find hardware parameters, call `./power_t_freq`
+* Profile hardware parameters：
 
   ~~~shell
-  ./power_t_freq
+  ./power_t_freq 1530 # 1530 is the highest frequency of the V100 GPU
   ~~~
 
-* Find the kernel of different instances
-
-  * Calling the `l2cache` script, you can find the kernel of the model
+* Compute the kernel of different models:
 
   ~~~shell
-  ./l2cache alexnet # Take the alexnet model as an example
+  ./l2cache alexnet 
+  ./l2cache resnet50
+  ./l2cache ssd
+  ./l2cache vgg19
   ~~~
 
   Below is the number of kernels for the four models under V100：
 
   ~~~
-  model kernel 
-  alexnet 20
-  resnet50 80
-  ssd 93
-  vgg19 29
+  model     kernel 
+  alexnet   20
+  resnet50  80
+  ssd       93
+  vgg19     29
   ~~~
 
-  * After getting all instance kernels, modify the kernel configuration in the `sepper.py` file.Modify the number of kernels corresponding to the model in the `sepper.py` file
+  * After getting all models kernels, modify the kernel configuration in the `sepper.py` file.Modify the number of kernels corresponding to the model in the `sepper.py` file # TODO ⚠️
 
-* Find the configuration for each instance
+* Get the parameters for each model:
 
-  * Call `./soloinference {model_name}` to find `idletime_1` , `activetime_1`, `transferdata` three parameters.
-  
+  * Get `idletime_1` , `activetime_1`, `transferdata` three parameters.
+
     ~~~shell
-    ./soloinference alexnet # Take the alexnet model as an example
+    ./soloinference alexnet
+    ./soloinference resnet50
+    ./soloinference ssd
+    ./soloinference vgg19
     ~~~
-  
-  * Call `./multiinference {model_name}` to find `activetime_5`, `power_5`, `frequency_5` three parameters.
-  
+
+  * Get `activetime_5`, `power_5`, `frequency_5` three parameters.
+
     ~~~shell
     ./multiinference alexnet
-    ~~~
-  
-  * Call `./l2cache {model_name}` to find one parameter of `l2cache`.
-  
-    ~~~shell
-    ./l2cache alexnet
-    ~~~
-  
-  * Call `./recordpower.sh {model_name}` to find `gpulatency`, `inferencelatency`, `power`, `frequency` four parameters.
-  
-    ~~~shell
-    ./recordpower.sh alexnet
+    ./multiinference resnet50
+    ./multiinference ssd
+    ./multiinference vgg19
     ~~~
 
-* Finally, for some models that require l2cache in the case of different resources and batches, at this time, the specific resource and batch values in the `l2cache` file are required, and then this method is called and manually added to the config file.
+  * Get one parameter of `l2cache`.
+
+    ~~~shell
+    ./l2cache alexnet
+    ./l2cache resnet50
+    ./l2cache ssd
+    ./l2cache vgg19
+    ~~~
+
+  * Get `gpulatency`, `inferencelatency`, `power`, `frequency` four parameters.
+
+    ~~~shell
+    ./recordpower.sh alexnet
+    ./recordpower.sh resnet50
+    ./recordpower.sh ssd
+    ./recordpower.sh vgg19
+    ~~~
+
+* Finally, for some models that require l2cache in the case of different resources and batches, at this time, the specific resource and batch values in the `l2cache` file are required, and then this method is called and manually added to the config file.# TODO ⚠️
 
 The configured file is shown in `i-Gniter/Algorithm/config`, which is the result of running on the V100 GPU.
 
