@@ -103,5 +103,47 @@ vgg19_dynamic:37.5 6
 slo_vio: 0.0 %
 ```
 
+
+
+### i-Gniter profiling
+
+* Generating model:
+
+  Call `python3 alexnet_onnx.py` to modify the parameters inside, respectively generate `Alexnet` `Resnet` `vgg19` `ssd` [ssd obtained from nvidia]
+
+  Note that the generated model naming is consistent
+
+* Start `start.sh` for initialization, and re-run each time, such as: MPSID, model_shape...
+
+* Manually configure some parameters:
+
+  * `./power_t_freq` : nvidia-smi -lgc 1530, this 1530 is the highest frequency of the V100 GPU, pay attention to manual configuration when configuring different GPU types
+
+* Find hardware parameters, call `./power_t_freq`
+
+* Find the kernel of different instances
+
+  * Calling the `l2cache` script, you can find the kernel of the model
+
+  ~~~
+  model kernel 
+  alexnet 20
+  resnet50 80
+  ssd 93
+  vgg19 29
+  ~~~
+
+  * After getting all instance kernels, modify the kernel configuration in the `sepper.py` file
+
+* Find the configuration for each instance
+
+  * Call `./soloinference {model_name}` to find `idletime_1` , `activetime_1`, `transferdata` three parameters.
+  * Call `./multiinference {model_name}` to find `activetime_5`, `power_5`, `frequency_5` three parameters.
+  * Call `./l2cache {model_name}` to find one parameter of `l2cache`.
+  * Call `./recordpower.sh {model_name}` to find `gpulatency`, `inferencelatency`, `power`, `frequency` four parameters.
+
+The configured file is shown in `i-Gniter/Algorithm/config`, which is the result of running on the V100 GPU.
+
 ## Publication
+
 Fei Xu, Jianian Xu, Jiabin Chen, Li Chen, Ruitao Shang, Zhi Zhou, Fangming Liu, "[iGniter: Interference-Aware GPU Resource Provisioning for Predictable DNN Inference in the Cloud](https://github.com/icloud-ecnu/igniter/raw/main/pdf/igniter.pdf)," submitted to IEEE Transactions on Parallel and Distributed Systems, 2022.

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+
+sep=1
+
+mpsid=$MPSID
+sleep 1
+echo set_active_thread_percentage "$mpsid" 20 | nvidia-cuda-mps-control
+sleep 1
+model=vgg19
+engine=../"$model"_1_1_64.engine
+kernels=29
+if true
+then
+a=1
+while(($a<=5))
+do
+    nsys profile -t cuda -s none --export=sqlite --force-overwrite=true -o data/v100_sysidletime_"$a" ./conperf $a $model  
+    
+    let a+=1
+done
+fi
+
+python3 sepper.py sys
+
+if false
+then
+a=1
+while(($a<=5))
+do
+    python3 sepper.py data/v100_"$model"_t20_c$a.sqlite $kernels
+    let a+=1
+done
+fi

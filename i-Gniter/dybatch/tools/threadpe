@@ -1,0 +1,30 @@
+#!/bin/bash
+source ./paramter
+# resnet50 arcface yolov3 efflite
+
+sep=2
+model=resnet50
+if false
+then
+engine=$(eval echo \$engine_$model)
+int=$sep
+while(( $int<=8 ))
+do
+    sleep 1
+    echo set_active_thread_percentage 2890 $int | nvidia-cuda-mps-control
+    sleep 1
+    nsys profile -t cuda -s none --export=sqlite --force-overwrite=true -o data/v100_"$model"_t$int trtexec --loadEngine=$engine --avgRuns=10 --duration=10
+    #./conperf 1
+    #nsys profile -t cuda -s none --export=sqlite --force-overwrite=true -o data/v100_yolv3_t$int ./conperf 1
+    #python3 sepper.py data/v100_yolv3_t$int.sqlite 151
+    let int+=$sep
+
+done
+fi
+
+int=$sep
+while(( $int<=10 ))
+do
+    python3 sepper.py data/v100_"$model"_t"$int".sqlite 69
+    let int+=$sep
+done

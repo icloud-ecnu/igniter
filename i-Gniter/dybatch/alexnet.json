@@ -1,0 +1,17 @@
+[
+  { "count" : 3015 }
+, { "name" : "Conv_0 + Relu_1", "timeMs" : 584.75, "averageMs" : 0.193947, "percentage" : 21.5843 }
+, { "name" : "MaxPool_2", "timeMs" : 23.8409, "averageMs" : 0.00790742, "percentage" : 0.880013 }
+, { "name" : "Reformatting CopyNode for Output Tensor 0 to MaxPool_2", "timeMs" : 26.7307, "averageMs" : 0.0088659, "percentage" : 0.986682 }
+, { "name" : "Conv_3 + Relu_4", "timeMs" : 257.441, "averageMs" : 0.0853868, "percentage" : 9.50266 }
+, { "name" : "Reformatting CopyNode for Input Tensor 0 to MaxPool_5", "timeMs" : 32.5123, "averageMs" : 0.0107835, "percentage" : 1.20009 }
+, { "name" : "MaxPool_5", "timeMs" : 21.956, "averageMs" : 0.00728225, "percentage" : 0.810438 }
+, { "name" : "Conv_6 + Relu_7", "timeMs" : 156.724, "averageMs" : 0.0519815, "percentage" : 5.785 }
+, { "name" : "Conv_8 + Relu_9", "timeMs" : 253.944, "averageMs" : 0.0842268, "percentage" : 9.37356 }
+, { "name" : "Conv_10 + Relu_11", "timeMs" : 178.515, "averageMs" : 0.0592088, "percentage" : 6.58932 }
+, { "name" : "MaxPool_12", "timeMs" : 23.6709, "averageMs" : 0.00785106, "percentage" : 0.873741 }
+, { "name" : "AveragePool_13", "timeMs" : 22.7453, "averageMs" : 0.00754405, "percentage" : 0.839574 }
+, { "name" : "Gemm_15 + Relu_16", "timeMs" : 665.182, "averageMs" : 0.220624, "percentage" : 24.5532 }
+, { "name" : "Gemm_17 + Relu_18", "timeMs" : 331.418, "averageMs" : 0.109923, "percentage" : 12.2333 }
+, { "name" : "Gemm_19", "timeMs" : 129.719, "averageMs" : 0.0430247, "percentage" : 4.7882 }
+]

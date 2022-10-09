@@ -1,0 +1,27 @@
+#!/bin/bash
+
+sep=1
+initbatch=32
+batch=32
+max=32
+model=vgg19
+if true
+then
+while(( $batch<=$max ))
+do
+    sleep 1
+    #trtexec --loadEngine="$model"_1_1_64.engine --duration=10 --shapes=actual_input_1:"$batch"x3x300x300 --exportTimes=data/durtime_"$model"_b"$batch"_t100
+    trtexec --loadEngine="$model"_1_1_64.engine --duration=10 --shapes=actual_input_1:"$batch"x3x224x224 --exportTimes=data/durtime_"$model"_b"$batch"_t100
+    #trtexec --loadEngine="$model"_1_1_64.engine --duration=10 --shapes=input_ids:"$batch"x128,attention_mask:"$batch"x128,token_type:"$batch"x128 --exportTimes=data/durtime_"$model"_b"$batch"_t100 
+    #./conperf 1
+    #nsys profile -t cuda -s none --export=sqlite --force-overwrite=true -o data/v100_yolv3_t$int ./conperf 1
+    #python3 sepper.py data/v100_yolv3_t$int.sqlite 151
+    let batch+=$sep
+done
+fi
+batch=$initbatch
+while(( $batch<=$max ))
+do
+    python3 trtexecps.py data/durtime_"$model"_b"$batch"_t100
+    let batch+=$sep
+done
