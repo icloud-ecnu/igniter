@@ -42,86 +42,72 @@ pip install -r requirements.txt
 ```
 ### Profiling
 
-* Generating models:
+Generating models:
+~~~shell
+cd i-Gniter/Profile
+python3 model_onnx.py
+python3 ssd_onnx.py
+~~~
+Initializing:
+~~~shell
+source start.sh
+~~~
+Profile hardware parameters:
+~~~shell
+./power_t_freq 1530 # 1530 is the highest frequency of the V100 GPU
+~~~
+Compute the kernel of different models:
+~~~shell
+./l2cache alexnet 
+./l2cache resnet50
+./l2cache ssd
+./l2cache vgg19
+~~~
+After you run the scripts, you will get the number of kernels of four models on V100.
+~~~
+model     kernel 
+alexnet   20
+resnet50  80
+ssd       93
+vgg19     29
+~~~
+After getting all models kernels, modify the kernel configuration in the `sepper.py` file.Modify the number of kernels corresponding to the model in the `sepper.py` file # TODO ⚠️
 
-  ~~~shell
-  cd i-Gniter/Profile
-  python3 model_onnx.py
-  python3 ssd_onnx.py
-  ~~~
+Get the parameters for each model:
 
-* Start `start.sh` for initialization:
+ `idletime_1`, `activetime_1`,`transferdata` 
 
-  ~~~shell
-  source start.sh
-  ~~~
+~~~shell
+./soloinference alexnet
+./soloinference resnet50
+./soloinference ssd
+./soloinference vgg19
+~~~
 
-* Profile hardware parameters：
+`activetime_5`,`power_5`,`frequency_5`
 
-  ~~~shell
-  ./power_t_freq 1530 # 1530 is the highest frequency of the V100 GPU
-  ~~~
+~~~shell
+./multiinference alexnet
+./multiinference resnet50
+./multiinference ssd
+./multiinference vgg19
+~~~
+`l2cache`
+~~~shell
+./l2cache alexnet
+./l2cache resnet50
+./l2cache ssd
+./l2cache vgg19
+~~~
+`GPU latency`, `inference latency`, `power`, `frequency`
+~~~shell
+./recordpower.sh alexnet
+./recordpower.sh resnet50
+./recordpower.sh ssd
+./recordpower.sh vgg19
+~~~
 
-* Compute the kernel of different models:
-
-  ~~~shell
-  ./l2cache alexnet 
-  ./l2cache resnet50
-  ./l2cache ssd
-  ./l2cache vgg19
-  ~~~
-
-  Below is the number of kernels for the four models under V100：
-
-  ~~~
-  model     kernel 
-  alexnet   20
-  resnet50  80
-  ssd       93
-  vgg19     29
-  ~~~
-
-  * After getting all models kernels, modify the kernel configuration in the `sepper.py` file.Modify the number of kernels corresponding to the model in the `sepper.py` file # TODO ⚠️
-
-* Get the parameters for each model:
-
-  * Get `idletime_1` , `activetime_1`, `transferdata` three parameters.
-
-    ~~~shell
-    ./soloinference alexnet
-    ./soloinference resnet50
-    ./soloinference ssd
-    ./soloinference vgg19
-    ~~~
-
-  * Get `activetime_5`, `power_5`, `frequency_5` three parameters.
-
-    ~~~shell
-    ./multiinference alexnet
-    ./multiinference resnet50
-    ./multiinference ssd
-    ./multiinference vgg19
-    ~~~
-
-  * Get one parameter of `l2cache`.
-
-    ~~~shell
-    ./l2cache alexnet
-    ./l2cache resnet50
-    ./l2cache ssd
-    ./l2cache vgg19
-    ~~~
-
-  * Get `gpulatency`, `inferencelatency`, `power`, `frequency` four parameters.
-
-    ~~~shell
-    ./recordpower.sh alexnet
-    ./recordpower.sh resnet50
-    ./recordpower.sh ssd
-    ./recordpower.sh vgg19
-    ~~~
-
-* Finally, for some models that require l2cache in the case of different resources and batches, at this time, the specific resource and batch values in the `l2cache` file are required, and then this method is called and manually added to the config file.# TODO ⚠️
+Finally, for some models that require l2cache in the case of different resources and batches, at this time, the specific resource and batch values in the `l2cache` file are required, and then this method is called and manually added to the config file.# TODO ⚠️
 
 The configured file is shown in `i-Gniter/Algorithm/config`, which is the result of running on the V100 GPU.
 
