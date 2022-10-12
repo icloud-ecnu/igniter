@@ -147,13 +147,27 @@ def multiinference(path,model,kernels):
     print(activetime)
     saverecords(model,"activetime_5",activetime)
 
+def loadprofile(path):
+    profile = {}
+    with open(path, "r") as file:
+        for line in file:
+            data = json.loads(line)
+            for key in data:
+                if (key not in profile):
+                    profile[key] = data[key]
+                else:
+                    profile[key].update(data[key])
+
+    return profile
+
+
 def initcontext():
-    kernels={"alexnet":20,"vgg19":29,"resnet50":80,"ssd":93}
+    return loadprofile("./kernelConfig")
 
 if __name__ == '__main__':
     #ans=conse(sys.argv[1])
     #print(ans[0],ans[1])
-    kernels={"alexnet":20,"vgg19":29,"resnet50":80,"ssd":93}
+    kernels = initcontext()
     if(sys.argv[1]=="sys"):
         sysprocess()
     elif(sys.argv[3]=="1"):

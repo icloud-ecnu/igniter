@@ -71,7 +71,6 @@ resnet50  80
 ssd       93
 vgg19     29
 ~~~
-After getting all models kernels, modify the kernel configuration in the `sepper.py` file.Modify the number of kernels corresponding to the model in the `sepper.py` file # TODO ⚠️
 
 Get the parameters for each model:
 

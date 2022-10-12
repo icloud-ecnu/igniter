@@ -43,7 +43,7 @@ def ncompute(openfilepath):
         avgans=[i/10 for i in avgans]
         print(avgans[0])
         print(size)
-        return avgans[0]
+        return avgans[0],kernels
         
 def saverecords(kind,metrics,value):
     path="config"
@@ -53,6 +53,17 @@ def saverecords(kind,metrics,value):
     with open(path,"a") as file:
         file.write(json_str+"\n")
 
+
+def saveKernelConfig(model,value): # 不确定json文件是否会重复覆盖 TODO
+    path="kernelConfig"
+    records={model:value}
+    json_str=json.dumps(records)
+    #print(json_str)
+    with open(path,"a") as file:
+        file.write(json_str+"\n")
+
+
 if __name__ == '__main__':
-    l2cache=ncompute(sys.argv[1])
+    l2cache,kernels=ncompute(sys.argv[1])
     saverecords(sys.argv[2],"l2cache",l2cache)
+    saveKernelConfig(sys.argv[2],kernels)
