@@ -1,4 +1,6 @@
 import argparse
+import os
+
 import torch
 import torchvision
 
@@ -23,20 +25,14 @@ torch.onnx.export(model, dummy_input, "alexnet_dynamic.onnx", verbose=True, opse
 
 
 model = torchvision.models.resnet50().cuda()
-# Fixed Shape
-#torch.onnx.export(model, dummy_input, "alexnet_fixed.onnx", verbose=True, opset_version=args.opset,
- #                 input_names=input_names, output_names=output_names)
-# Dynamic Shape
 torch.onnx.export(model, dummy_input, "resnet50_dynamic.onnx", verbose=True, opset_version=args.opset,
                   input_names=input_names, output_names=output_names,
                   dynamic_axes=dynamic_axes)
 
 
 model = torchvision.models.vgg19().cuda()
-# Fixed Shape
-#torch.onnx.export(model, dummy_input, "alexnet_fixed.onnx", verbose=True, opset_version=args.opset,
- #                 input_names=input_names, output_names=output_names)
-# Dynamic Shape
 torch.onnx.export(model, dummy_input, "vgg19_dynamic.onnx", verbose=True, opset_version=args.opset,
                   input_names=input_names, output_names=output_names,
                   dynamic_axes=dynamic_axes)
+
+os.system("python3 ssd_onnx.py")
