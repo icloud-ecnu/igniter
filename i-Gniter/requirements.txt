@@ -1,3 +1,7 @@
+torchvision
+torch
+pandas
+scikit-image
 numpy
 scipy
 Pillow
