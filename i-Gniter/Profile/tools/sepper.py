@@ -153,7 +153,7 @@ def loadprofile(path):
         for line in file:
             data = json.loads(line)
             for key in data:
-                if (key not in profile):
+                if key not in profile:
                     profile[key] = data[key]
                 else:
                     profile[key].update(data[key])

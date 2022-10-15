@@ -45,8 +45,8 @@ pip install -r requirements.txt
 Generating models:
 ~~~shell
 cd i-Gniter/Profile
-python3 model_onnx.py
-python3 ssd_onnx.py
+python3 model_onnx.py 
+./onnxTOtrt.sh
 ~~~
 Initializing:
 ~~~shell
@@ -64,7 +64,7 @@ Compute the kernel of different models:
 ./l2cache vgg19
 ~~~
 After you run the scripts, you will get the number of kernels of four models on V100.
-~~~
+~~~ 
 model     kernel 
 alexnet   20
 resnet50  80
@@ -91,13 +91,6 @@ Get the parameters for each model:
 ./multiinference ssd
 ./multiinference vgg19
 ~~~
-`l2cache`
-~~~shell
-./l2cache alexnet
-./l2cache resnet50
-./l2cache ssd
-./l2cache vgg19
-~~~
 `GPU latency`, `inference latency`, `power`, `frequency`
 ~~~shell
 ./recordpower.sh alexnet
@@ -105,8 +98,13 @@ Get the parameters for each model:
 ./recordpower.sh ssd
 ./recordpower.sh vgg19
 ~~~
-
-Finally, for some models that require l2cache in the case of different resources and batches, at this time, the specific resource and batch values in the `l2cache` file are required, and then this method is called and manually added to the config file.# TODO ⚠️
+`l2caches`
+~~~
+./model_l2caches.sh alexnet
+./model_l2caches.sh resnet50
+./model_l2caches.sh ssd
+./model_l2caches.sh vgg19 
+~~~
 
 The configured file is shown in `i-Gniter/Algorithm/config`, which is the result of running on the V100 GPU.
 

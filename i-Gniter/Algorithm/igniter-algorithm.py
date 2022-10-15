@@ -1,21 +1,28 @@
+import argparse
 import json
 import numpy as np
 from scipy.optimize import curve_fit
 import math
 import copy
 
+"""
+需要测的：
+bandwidth
+l2caches 对应的应该是[b,r] =  [[1, 10] [16, 50] [32, 100]]
+"""
+
 
 class Context:
-    frequency = 1530
-    power = 300
-    idlepower = 52
+    frequency = 1590
+    power = 70
+    idlepower = 52  # config
     batchsize = [1, 16, 32]
     thread = [10, 50, 100]
     models = ["alexnet", "resnet50", "vgg19", "ssd"]
-    kernels = [20, 80, 29, 93]
-    unit = 2.5
-    step = 40
-    bandwidth = 10
+    kernels = [16, 71, 29, 89]
+    unit = 5  # T4 的 SM 是40
+    step = 20
+    bandwidth = 5909431
     powerp = []
     idlef = []
 
@@ -42,6 +49,7 @@ def loadprofile(path):
     profile = {}
     with open(path, "r") as file:
         for line in file:
+            # print(line)
             data = json.loads(line)
             for key in data:
                 if (key not in profile):
@@ -63,12 +71,15 @@ def power_frequency(power, frequency):
     k = 0
     l = 0
     for i in range(len(frequency)):
-        if (frequency[i] == 1530):
+        if (frequency[i] == context.frequency):
             if (i >= 1):
                 k += (power[i] - power[i - 1])
                 l += 1
         else:
-            k /= l
+            if l > 0:
+                k /= l
+            else:
+                k = power[0] - context.idlepower
             for j in range(i, len(power)):
                 power[j] = power[j - 1] + k
             popt, pcov = curve_fit(p_f, power[i:], frequency[i:])
@@ -85,7 +96,7 @@ def idletime(idletime, frequency):
     l = len(idletime)
     vgg19 = [0] * l
     for i in range(l):
-        vgg19[i] = idletime[i] * frequency[i] / 1530
+        vgg19[i] = idletime[i] * frequency[i] / context.frequency
     fp = []
     x = np.array([2, 3, 4, 5])
     for i in range(1, len(vgg19)):
@@ -122,6 +133,7 @@ def ability_cp(x, k, b):
     return k * x + b
 
 
+# l2caches 对应的应该是[b,r] =  [[1, 10] [16, 50] [32, 100]]
 def power_l2cache(power, gpulatency, baseidletime, idlepower, l2caches, frequency):
     # power gpulatecny t50
     # power[batchsize][thread]
@@ -136,7 +148,7 @@ def power_l2cache(power, gpulatency, baseidletime, idlepower, l2caches, frequenc
             b = batch[i]
             r = resource[j]
             ability.append((1000 * b) / (gpulatency[i][j] - baseidletime))
-            if frequency[i][j] > 1529:
+            if frequency[i][j] > context.frequency - 1:
                 ability_p.append((1000 * b) / (gpulatency[i][j] - baseidletime))
                 ypower.append(power[i][j] - idlepower)
     popt_p, pcov_p = curve_fit(ability_cp, ability_p, ypower)
@@ -165,7 +177,7 @@ def predict(models, batchsize, thread):  # model类型是Model类,batch,resource
         tmpl2cache = ability_cp((1000 * batchsize[i]) / tact_solo, m.l2cache_popt[0], m.l2cache_popt[1])
         tmpcache.append(tmpl2cache)
         total_l2cache += tmpl2cache
-    if total_power > 300:
+    if total_power > context.power:
         frequency = p_f(total_power, context.powerp[0])
     for i in range(len(models)):
         m = models[i]
@@ -176,8 +188,10 @@ def predict(models, batchsize, thread):  # model类型是Model类,batch,resource
         activetime = tact_solo * (1 + m.k_l2 * l2)
         gpu_latency = (idletime + activetime) / (frequency / context.frequency)
 
-        ans[0].append(batchsize[i] * 1000 / (gpu_latency + m.outputdata * batchsize[i] / context.bandwidth)) # throughput
-        ans[1].append(gpu_latency + (m.inputdata + m.outputdata) * batchsize[i] / context.bandwidth) # T(inf) = T(gpu) + T(load) + T(feedback)
+        ans[0].append(
+            batchsize[i] * 1000 / (gpu_latency + m.outputdata * batchsize[i] / context.bandwidth))  # throughput
+        ans[1].append(gpu_latency + (m.inputdata + m.outputdata) * batchsize[
+            i] / context.bandwidth)  # T(inf) = T(gpu) + T(load) + T(feedback)
 
     return ans
 
@@ -202,7 +216,7 @@ def durationps(openfilepath):
                 # latencyMs computeMs
                 gpulatency.append(j["computeMs"])
                 inferencelatency.append(j["latencyMs"])
-        if (len(gpulatency) > 10):
+        if len(gpulatency) > 10:
             # print(sum/n,sum2/n)
             return ([np.mean(gpulatency), np.mean(inferencelatency)], [np.std(gpulatency), np.std(inferencelatency)])
         else:
@@ -219,7 +233,7 @@ def r_total(ra_j):
 def alloc_gpus(inference, batch, slo, ra_ij, r_lower, w, j):
     flag = 1
     ra_ij[j].append([w, r_lower])
-    if r_total(ra_ij[j]) > 100: # 如果该GPU上的所有模型的资源之和超过了100
+    if r_total(ra_ij[j]) > 100:  # 如果该GPU上的所有模型的资源之和超过了100
         return ra_ij
     addinferece = []
     addbatch = []
@@ -231,7 +245,7 @@ def alloc_gpus(inference, batch, slo, ra_ij, r_lower, w, j):
         addbatch.append(batch[infwork[0]])
         addresource.append(infwork[1])
 
-    while np.sum(addresource) <= 100 and flag == 1: # 增加一个负载之后，可能预测之后其他模型的latency发生变化，所以就要一直修改，直到所有模型的latency都满足要求
+    while np.sum(addresource) <= 100 and flag == 1:  # 增加一个负载之后，可能预测之后其他模型的latency发生变化，所以就要一直修改，直到所有模型的latency都满足要求
         flag = 0
         latency = predict(addinferece, addbatch, addresource)[1]
         for i in range(num_workloads):
@@ -253,22 +267,64 @@ def algorithm(inference, slo, rate):
     resource = [[]]
     batch = [0] * m
     r_lower = [[i, 0] for i in range(m)]
-    # arrivate ips 
+    # arrivate ips
     arrivate = [i / 1000 for i in rate]
     for i in range(m):
         inf = inference[i]
         batch[i] = math.ceil(
             slo[i] * arrivate[i] * context.bandwidth / (context.bandwidth + inf.inputdata * arrivate[i]))
         gama = inf.act_popt[0] * batch[i] ** 2 + inf.act_popt[1] * batch[i] + inf.act_popt[2]
-        delta = slo[i] - inf.baseidle - batch[i] * (inf.inputdata + inf.outputdata) / context.bandwidth - inf.act_popt[4]
+        delta = slo[i] - inf.baseidle - batch[i] * (inf.inputdata + inf.outputdata) / context.bandwidth - inf.act_popt[
+            4]
         r_lower[i][1] = math.ceil((gama / delta - inf.act_popt[3]) / context.unit) * context.unit
     # Initialize End
 
     g = 1  # 表示GPU的数量
-    for r_l in r_lower:
-        if r_l[1] > 100:
+    add_g = 1
+    # ans.append([inf[0], inference[inf[0]].name, batch[inf[0]], inf[1]])
+    result = []
+    for i in range(len(r_lower)):
+        if r_lower[i][1] > 100:
             print("workload is too large!")
-            return
+            # 给100%资源，遍历batchsize
+            max_batch = -1
+            new_rate = 0
+            id = r_lower[i][0]
+            new_res = 0
+            for b in range(1, 33):
+                res = predict([inference[id]], [b], [100])
+                if res[1][0] < slo[id]:
+                    new_res = res
+                    max_batch = b
+                    new_rate = res[0][0]
+                else:
+                    break
+            if max_batch == -1:
+                print("GPU 无法满足该负载")
+            else:
+                new_rate = math.ceil(new_rate * 0.9)
+                print("model = ", inference[id].name)
+                print(batch[id], max_batch)
+                print("max_rate = ", new_rate, " rate = ", rate[id])
+                print("new_res = ", new_res)
+                while rate[id] > new_rate:
+                    result.append([id, inference[id].name, max_batch, 100])
+                    rate[id] -= new_rate
+
+    print("===== len = ", len(result))
+    print(result)
+    # print("rate = ",rate)
+
+    arrivate = [i / 1000 for i in rate]
+    for i in range(m):
+        inf = inference[i]
+        batch[i] = math.ceil(
+            slo[i] * arrivate[i] * context.bandwidth / (context.bandwidth + inf.inputdata * arrivate[i]))
+        gama = inf.act_popt[0] * batch[i] ** 2 + inf.act_popt[1] * batch[i] + inf.act_popt[2]
+        delta = slo[i] - inf.baseidle - batch[i] * (inf.inputdata + inf.outputdata) / context.bandwidth - inf.act_popt[
+            4]
+        r_lower[i][1] = math.ceil((gama / delta - inf.act_popt[3]) / context.unit) * context.unit
+
     # sorted
     r_lower.sort(key=lambda x: x[1], reverse=True)
     # 放置操作
@@ -294,10 +350,10 @@ def algorithm(inference, slo, rate):
 
     lr = len(resource)
     # print("r_lower",r_lower)
-    for i in range(m):
-        print(i, slo[i], rate[i], batch[i])
+    # for i in range(m):
+    #     print(i, slo[i], rate[i], batch[i])
     # print(resource)
-    print("id,model,batch,resources")
+    # print("id,model,batch,resources")
     gpuid = 1
     for gpu in resource:
         ans = []
@@ -322,7 +378,6 @@ def algorithm(inference, slo, rate):
 if __name__ == '__main__':
     profile = loadprofile("./config")
 
-    context.bandwidth = 10000000
 
     context.idlepower = profile["hardware"]["idlepower"]
     context.powerp = power_frequency(profile["hardware"]["power"], profile["hardware"]["frequency"])
@@ -340,8 +395,13 @@ if __name__ == '__main__':
         m.outputdata = profile[i]["outputdata"]
         j += 1
         m.l2cache = profile[i]["l2cache"]
-        m.k_l2 = ((profile[i]["activetime_2"] * profile[i]["frequency_2"] / context.frequency) / profile[i][
-            "activetime_1"] - 1) / (m.l2cache)
+        m.k_l2 = ((profile[i]["activetime_5"] * profile[i]["frequency_5"] / context.frequency) / profile[i][
+            "activetime_1"] - 1) / (4 * m.l2cache)  # α_cache
+        '''
+             profile[i]["activetime_2"] * profile[i]["frequency_2"] / context.frequency 这个是为了求不降频率的t_{act}， (t_{act}/k_{act} - 1) / l2cache
+             所以，如果是activetime_5 则需要给l2cache 加一个4的倍数
+             m.k_l2 = ((profile[i]["activetime_2"] * profile[i]["frequency_2"] / context.frequency) / profile[i]["activetime_1"] - 1) / (4 * m.l2cache)
+         '''
         m.act_popt = activetime(profile[i]["gpulatency"], profile[i]["frequency"], profile[i]["idletime_1"])
         m.power_popt, m.l2cache_popt = power_l2cache(profile[i]["power"], profile[i]["gpulatency"], m.baseidle,
                                                      context.idlepower, profile[i]["l2caches"], profile[i]["frequency"])
@@ -350,7 +410,48 @@ if __name__ == '__main__':
 
     # motivation example
     # model0: AlexNet, model1: ResNet-50, model2: VGG-19
-    workloads = [models[0], models[1], models[2]]
+    # workloads = [models[0], models[1], models[2]]
+    # SLOs = [15, 40, 60]
+    # rates = [500, 400, 200]
+
+    parse = argparse.ArgumentParser()
+    parse.add_argument(
+        "-s",
+        "--slos",
+        type=str,
+    )
+    parse.add_argument(
+        "-r",
+        "--rates",
+        type=str,
+    )
+    FLAGS = parse.parse_args()
     SLOs = [15, 40, 60]
     rates = [500, 400, 200]
+    if FLAGS.slos:
+        SLOs = [int(x) for x in FLAGS.slos.split(":")]
+    if FLAGS.rates:
+        rates = [int(x) for x in FLAGS.rates.split(":")]
+
+    workloads = [models[i] for i in range(len(SLOs))]
+
     algorithm(workloads, SLOs, rates)
+
+"""
+alexnet
+[10/03/2022-03:04:26] [I] Average on 50 runs - GPU latency: 11.3629 ms - Host latency: 12.2047 ms (end to end 22.6433 ms, enqueue 0.122168 ms)
+ssd
+[10/03/2022-03:04:28] [I] Average on 50 runs - GPU latency: 25.7123 ms - Host latency: 27.2738 ms (end to end 51.332 ms, enqueue 0.719614 ms)
+
+resnet50
+[10/03/2022-03:08:23] [I] Average on 50 runs - GPU latency: 51.3201 ms - Host latency: 51.9778 ms (end to end 102.526 ms, enqueue 0.445156 ms)
+vgg19
+[10/03/2022-03:08:25] [I] Average on 50 runs - GPU latency: 22.6339 ms - Host latency: 22.8856 ms (end to end 45.1887 ms, enqueue 0.152739 ms)
+[[134.35926755864617, 116.1678252669638], [45.267731176502885, 17.42025106992535]]
+
+python3 igniter-algorithm.py -s 10:20:20:25:15:30:30:40:20:40:40:55 -r 1200:400:300:150:400:600:400:50:800:200:200:300
+
+VGG19
+latency： 
+    10ms，batch 1 400
+"""
