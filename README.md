@@ -32,6 +32,13 @@ Given a fixed supply of L2 cache space on a GPU device, a higher GPU L2 cache ut
 
 <div align=center><img width="350" height="65" src="images/GPU_active_time.png"/></div>
 
+#### Our experimental environment is shown below:
+* Driver Version: 465.19.01  
+* CUDA Version: 11.3   
+* TensorRT:8.0.1.6
+* cuDNN Version: 8.2.0
+
+
 ## Getting Started
 
 ### Requirements
