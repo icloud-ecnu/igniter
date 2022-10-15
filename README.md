@@ -32,11 +32,7 @@ Given a fixed supply of L2 cache space on a GPU device, a higher GPU L2 cache ut
 
 <div align=center><img width="350" height="65" src="images/GPU_active_time.png"/></div>
 
-#### Our experimental environment is shown below:
-* Driver Version: 465.19.01  
-* CUDA Version: 11.3   
-* TensorRT Version: 8.0.1.6
-* cuDNN Version: 8.2.0
+
 
 
 ## Getting Started
@@ -49,21 +45,32 @@ pip install -r requirements.txt
 ```
 ### Profiling
 
-Generating models:
+#### Profiling environment
+
+* Driver Version: 465.19.01  
+* CUDA Version: 11.3   
+* TensorRT Version: 8.0.1.6
+* cuDNN Version: 8.2.0
+
+#### Generating models:
+
 ~~~shell
 cd i-Gniter/Profile
 python3 model_onnx.py 
 ./onnxTOtrt.sh
 ~~~
-Initializing:
+#### Initializing:
+
 ~~~shell
 source start.sh
 ~~~
-Profile hardware parameters:
+#### Profiling hardware parameters:
+
 ~~~shell
 ./power_t_freq 1530 # 1530 is the highest frequency of the V100 GPU
 ~~~
-Compute the kernel of different models:
+#### Computing the kernel of different models:
+
 ~~~shell
 ./l2cache alexnet 
 ./l2cache resnet50
@@ -79,7 +86,7 @@ ssd       93
 vgg19     29
 ~~~
 
-Get the parameters for each model:
+#### Geting the parameters for each model:
 
  `idletime_1`, `activetime_1`,`transferdata` 
 
