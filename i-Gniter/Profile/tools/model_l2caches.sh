@@ -7,7 +7,7 @@ eval shape=\${"$model"_shape}
 sleep 1
 echo set_active_thread_percentage "$mpsid" 10 | nvidia-cuda-mps-control
 sleep 1
-output1="$model"_l2caches
+output1="$model"_l2caches_1_10
 rm ./data/"$output1".ncu-rep
 ncu -o ./data/"$output1" --metrics \
     gpu__time_duration.sum,lts__t_sectors.avg.pct_of_peak_sustained_elapsed \
@@ -17,7 +17,7 @@ ncu --import data/"$output1".ncu-rep --csv > data/"$output1".csv
 sleep 1
 echo set_active_thread_percentage "$mpsid" 50 | nvidia-cuda-mps-control
 sleep 1
-output2="$model"_l2caches
+output2="$model"_l2caches_16_50
 rm ./data/"$output2".ncu-rep
 ncu -o ./data/"$output2" --metrics \
     gpu__time_duration.sum,lts__t_sectors.avg.pct_of_peak_sustained_elapsed \
@@ -27,7 +27,7 @@ ncu --import data/"$output2".ncu-rep --csv > data/"$output2".csv
 sleep 1
 echo set_active_thread_percentage "$mpsid" 100 | nvidia-cuda-mps-control
 sleep 1
-output3="$model"_l2caches
+output3="$model"_l2caches_32_100
 rm ./data/"$output3".ncu-rep
 ncu -o ./data/"$output3" --metrics \
     gpu__time_duration.sum,lts__t_sectors.avg.pct_of_peak_sustained_elapsed \
