@@ -1,0 +1,17 @@
+#!/bin/bash
+model=$1
+mpsid=$MPSID
+sleep 1
+echo set_active_thread_percentage "$mpsid" 20 | nvidia-cuda-mps-control
+sleep 1
+output="$model"_l2cache
+engine="$model"_1_1_64.engine
+eval shape=\${"$model"_shape}
+rm ./data/"$output".ncu-rep
+ncu -o ./data/"$output" --metrics \
+    gpu__time_duration.sum,lts__t_sectors.avg.pct_of_peak_sustained_elapsed \
+    trtexec --loadEngine=../"$engine" --shapes=actual_input_1:1x"$shape" --avgRuns=1 --warmUp=0 --duration=0
+
+ncu --import data/"$output".ncu-rep --csv > data/"$output".csv
+
+python3 l2cache.py data/"$output".csv $model

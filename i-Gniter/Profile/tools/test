@@ -1,0 +1,9 @@
+#!/bin/bash
+
+mpsid=$MPSID
+thread=25
+model=alexnet
+engine="$model"_1_1_64.engine
+eval shape=\${"$model"_shape}
+echo set_active_thread_percentage $mpsid $thread | nvidia-cuda-mps-control
+trtexec --loadEngine=../"$engine" --duration=10 --shapes=actual_input_1:1x"$shape"

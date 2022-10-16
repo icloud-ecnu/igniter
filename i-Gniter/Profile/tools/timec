@@ -1,0 +1,40 @@
+#!/bin/bash
+#source ./paramter
+# resnet50 arcface yolov3 efflite
+sep=1
+model=vgg19
+engine=../"$model"_1_1_64.engine
+batch=32
+
+if true
+then
+int=$sep
+while(( $int<=5 ))
+do
+    i=1
+    while(( $i<=$int ))
+    do
+        trtexec --loadEngine=$engine --avgRuns=10 --duration=10 --shapes=actual_input_1:"$batch"x3x224x224 --exportTimes=data/durtime_"$model"_t20_c$int.$i &
+        let i+=1
+    done
+    wait
+    #nsys profile -t cuda -s none --export=sqlite --force-overwrite=true -o data/v100_yolv3_t$int ./conperf 1
+    #python3 sepper.py data/v100_yolv3_t$int.sqlite 151
+    let int+=$sep
+done
+fi
+
+if false
+then
+int=$sep
+while(( $int<=5 ))
+do
+    i=1
+    while(( $i<=$int ))
+    do
+        python3 trtexecps.py data/durtime_"$model"_t20_c$int.$i
+	let i+=1
+    done
+    let int+=$sep
+done
+fi

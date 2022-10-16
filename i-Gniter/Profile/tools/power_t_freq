@@ -1,0 +1,15 @@
+#!/bin/bash
+mpsid=$MPSID
+nvidia-smi -lgc $1
+nvidia-smi dmon -f data/dmon_vgg19_t20 &
+sleep 1
+echo set_active_thread_percentage "$mpsid" 20 | nvidia-cuda-mps-control
+sleep 1
+# power_frequency(vgg19) 
+smi_pid=$!
+./timec
+sleep 1
+kill $smi_pid
+sleep 1
+python3 nvidiadmonps.py data/dmon_vgg19_t20 sys
+

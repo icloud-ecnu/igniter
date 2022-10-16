@@ -1,0 +1,6 @@
+#!/bin/bash
+nvidia-smi dmon -f dmontest &
+SLEEP_PID=$!
+echo $SLEEP_PID
+sleep 5
+kill $SLEEP_PID

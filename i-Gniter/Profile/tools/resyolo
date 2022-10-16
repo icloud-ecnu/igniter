@@ -1,0 +1,21 @@
+#!/bin/bash
+int=1
+count=1
+while(($int<=$2))
+do
+    let int++
+    let count++
+    trtexec --loadEngine=../yolov3_onnx/yolov3.trt --avgRuns=10 --duration=10 &
+    trtexec --loadEngine=../introductory_parser_samples/resnet50.trt --avgRuns=10 --duration=10 &
+    #python3 onnx_resnet50.py >> log &
+done
+int=1
+#sleep 2.6
+while(($int<=$1))
+do
+    let int++
+    let count++
+    trtexec --loadEngine=efficientnet_1.trt --avgRuns=10 --duration=10  &
+    #python3 onnx_resnet50.py >> log &
+done
+wait

@@ -32,6 +32,9 @@ Given a fixed supply of L2 cache space on a GPU device, a higher GPU L2 cache ut
 
 <div align=center><img width="350" height="65" src="images/GPU_active_time.png"/></div>
 
+
+
+
 ## Getting Started
 
 ### Requirements
@@ -40,7 +43,87 @@ cd i-Gniter
 python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
+### Profiling
+
+#### Profiling environment
+
+* Driver Version: 465.19.01  
+* CUDA Version: 11.3   
+* TensorRT Version: 8.0.1.6
+* cuDNN Version: 8.2.0
+
+#### Generating models:
+
+~~~shell
+cd i-Gniter/Profile
+python3 model_onnx.py 
+./onnxTOtrt.sh
+~~~
+#### Initializing:
+
+~~~shell
+source start.sh
+~~~
+#### Profiling hardware parameters:
+
+~~~shell
+./power_t_freq 1530 # 1530 is the highest frequency of the V100 GPU
+~~~
+#### Computing the kernel of different models:
+
+~~~shell
+./l2cache alexnet 
+./l2cache resnet50
+./l2cache ssd
+./l2cache vgg19
+~~~
+After you run the scripts, you will get the number of kernels of four models on V100.
+~~~ 
+model     kernel 
+alexnet   20
+resnet50  80
+ssd       93
+vgg19     29
+~~~
+
+#### Geting the parameters for each model:
+
+ `idletime_1`, `activetime_1`,`transferdata` 
+
+~~~shell
+./soloinference alexnet
+./soloinference resnet50
+./soloinference ssd
+./soloinference vgg19
+~~~
+
+`activetime_5`,`power_5`,`frequency_5`
+
+~~~shell
+./multiinference alexnet
+./multiinference resnet50
+./multiinference ssd
+./multiinference vgg19
+~~~
+`GPU latency`, `inference latency`, `power`, `frequency`
+~~~shell
+./recordpower.sh alexnet
+./recordpower.sh resnet50
+./recordpower.sh ssd
+./recordpower.sh vgg19
+~~~
+`l2caches`
+~~~
+./model_l2caches.sh alexnet
+./model_l2caches.sh resnet50
+./model_l2caches.sh ssd
+./model_l2caches.sh vgg19 
+~~~
+
+The configured file is shown in `i-Gniter/Algorithm/config`, which is the result of running on the V100 GPU.
+
 ### Obtaining the GPU resources provisioning plan
+
 ```
 cd i-Gniter/Algorithm
 python3 igniter-algorithm.py
@@ -103,5 +186,8 @@ vgg19_dynamic:37.5 6
 slo_vio: 0.0 %
 ```
 
+
+
 ## Publication
+
 Fei Xu, Jianian Xu, Jiabin Chen, Li Chen, Ruitao Shang, Zhi Zhou, Fangming Liu, "[iGniter: Interference-Aware GPU Resource Provisioning for Predictable DNN Inference in the Cloud](https://github.com/icloud-ecnu/igniter/raw/main/pdf/igniter.pdf)," submitted to IEEE Transactions on Parallel and Distributed Systems, 2022.

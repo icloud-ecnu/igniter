@@ -1,0 +1,35 @@
+#!/bin/bash
+#source ./paramter
+# resnet50 arcface yolov3 efflite
+
+sep=1
+
+model=alexnet
+engine=../"$model"_1_1_64.engine
+kernels=20
+con=0
+thread=20
+model2=resnet50
+engine2=../"$model2"_1_1_64.engine
+kernels2=80
+con2=5
+thread2=20
+mpsid=1713
+if true
+then
+sleep 1
+echo set_active_thread_percentage $mpsid $thread | nvidia-cuda-mps-control
+sleep 1
+nsys profile -t cuda -s none --export=sqlite --force-overwrite=true -o data/v100_"$model"_t"$thread"_c$con ./conperfb $con $engine 64 &
+    
+sleep 1
+echo set_active_thread_percentage $mpsid $thread2 | nvidia-cuda-mps-control
+sleep 1
+nsys profile -t cuda -s none --export=sqlite --force-overwrite=true -o data/v100_"$model2"_t"$thread2"_c$con2 ./conperf $con2 $engine2 &
+
+wait
+fi
+
+python3 sepper.py data/v100_"$model"_t"$thread"_c"$con".sqlite $kernels
+
+python3 sepper.py data/v100_"$model2"_t"$thread2"_c"$con2".sqlite $kernels2

@@ -1,0 +1,10 @@
+#!/bin/bash
+int=1
+while(($int<=$1))
+do
+    let int++
+    trtexec --loadEngine=$2 --avgRuns=50 --duration=15 --shapes=actual_input_1:"$3"x3x224x224  &
+    #sleep 1
+   # python3 onnx_to_tensorrt.py &
+done
+wait

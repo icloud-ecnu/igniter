@@ -1,0 +1,5 @@
+#!/bin/bash
+trtexec --loadEngine=resnet50_1_1_64.engine --shapes=actual_input_1:32x3x224x224 --duration=10  &
+#trtexec --loadEngine=alexnet_1_1_64.engine --shapes=actual_input_1:1x3x224x224 --duration=10 &
+trtexec --loadEngine=alexnet_1_1_64.engine --shapes=actual_input_1:"$1"x3x224x224 --duration=10
+wait

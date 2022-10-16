@@ -1,0 +1,17 @@
+#!/bin/bash
+model=$1
+thread=$2
+batch=$3
+mpsid=$MPSID
+output=data/durtime_"$model"_b"$batch"_t"$thread"
+engine="$model"_1_1_64.engine
+sleep 1
+echo set_active_thread_percentage $mpsid $2 | nvidia-cuda-mps-control
+sleep 1
+eval shape=\${"$model"_shape}
+
+if [ $model == "bert" ]; then
+    trtexec --loadEngine=../"$engine" --duration=10 --shapes=input_ids:"$batch"x128,attention_mask:"$batch"x128,token_type:"$batch"x128 --exportTimes=$output 
+else
+    trtexec --loadEngine=../"$engine" --duration=10 --shapes=actual_input_1:"$batch"x"$shape" --exportTimes=$output 
+fi

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+mpsid=$MPSID
+sleep 1
+echo set_active_thread_percentage "$mpsid" 20 | nvidia-cuda-mps-control
+sleep 1
+
+model=$1
+engine=../"$model"_1_1_64.engine
+#kernels=$2
+#echo set_active_thread_percentage $mpsid 20 | nvidia-cuda-mps-control
+a=1
+eval shape=\${"$model"_shape}
+if true
+then
+nsys profile -t cuda -s none --export=sqlite --force-overwrite=true -o data/v100_"$model"_t20_c$a \
+    trtexec --loadEngine=$engine --avgRuns=50 --duration=10 --shapes=actual_input_1:1x"$shape"
+fi
+
+python3 sepper.py data/v100_"$model"_t20_c$a.sqlite $model 1
+python3 transferdata.py data/v100_"$model"_t20_c$a.sqlite $model

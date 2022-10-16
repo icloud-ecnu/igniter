@@ -1,0 +1,13 @@
+#!/bin/bash
+int=1
+model=$2
+engine=../"$model"_1_1_64.engine
+eval shape=\${"$model"_shape}
+while(($int<=$1))
+do
+    let int++
+    trtexec --loadEngine=$engine --avgRuns=50 --duration=15 --shapes=actual_input_1:1x"$shape"  &
+    #sleep 1
+   # python3 onnx_to_tensorrt.py &
+done
+wait

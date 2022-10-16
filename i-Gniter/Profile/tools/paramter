@@ -1,0 +1,6 @@
+#!/bin/bash
+engine_resnet50="../introductory_parser_samples/resnet50.trt"
+engine_yolov3="../yolov3_onnx/yolov3.trt"
+engine_efflite="../efficient-lite/efficientnet_1.trt"
+engine_arcface="../arcface/arcfaceresnet.trt"
+
