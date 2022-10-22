@@ -64,6 +64,12 @@ python3 model_onnx.py
 ~~~shell
 source start.sh
 ~~~
+#### Computing bandwidth
+
+~~~shell
+python3 computeBandwidth.py
+~~~
+
 #### Profiling hardware parameters:
 
 ~~~shell
@@ -126,6 +132,7 @@ The configured file is shown in `i-Gniter/Algorithm/config`, which is the result
 
 ```
 cd i-Gniter/Algorithm
+python3 start.py
 python3 igniter-algorithm.py
 ```
 After you run the script, you will get the GPU resources provisioning plan, which is a JSON config file. The configuration will specify models, inference arrival rates, SLOs, GPU resources and batches. The file will be used in Performance Measurement part to measuring performance.

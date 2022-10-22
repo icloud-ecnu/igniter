@@ -66,4 +66,5 @@ def saveKernelConfig(model,value): # 不确定json文件是否会重复覆盖 TO
 if __name__ == '__main__':
     l2cache,kernels=ncompute(sys.argv[1])
     saverecords(sys.argv[2],"l2cache",l2cache)
+    saverecords(sys.argv[2],"kernel",kernels)
     saveKernelConfig(sys.argv[2],kernels)
