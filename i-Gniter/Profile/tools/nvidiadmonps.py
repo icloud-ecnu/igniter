@@ -75,11 +75,11 @@ def dmonps(openfilepath,kind):
                 saverecords("hardware","power",value)
             elif(i=="pclk"):
                 saverecords("hardware","frequency",value)
-        elif(openfilepath[-1]=="5"):
+        elif(openfilepath[-1]=="2"):
             if(i=="pwr"):
-                saverecords(kind,"power_5",value[0])
+                saverecords(kind,"power_2",value[0])
             elif(i=="pclk"):
-                saverecords(kind,"frequency_5",value[0])
+                saverecords(kind,"frequency_2",value[0])
         else:
             if(i=="pwr"):
                 saverecords(kind,"power",values)
