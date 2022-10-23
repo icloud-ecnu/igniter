@@ -5,7 +5,7 @@ sep=1
 mpsid=$MPSID
 model=$1
 engine=../"$model"_1_1_64.engine
-a=5
+a=2
 
 nvidia-smi dmon -f data/dmon_"$model"_c"$a" &
 smi_pid=$!
