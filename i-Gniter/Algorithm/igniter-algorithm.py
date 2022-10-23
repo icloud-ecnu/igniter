@@ -112,7 +112,7 @@ def activetime(gpulatency, frequency, baseidletime):
     for i in range(len(context.batchsize)):
         for j in range(len(context.thread)):
             tmp = gpulatency[i][j]
-            if (frequency[i][j] < context.frequency):
+            if frequency[i][j] < context.frequency:
                 tmp *= (frequency[i][j] / context.frequency)
             tmp -= baseidletime
             activelatency.append(tmp)
