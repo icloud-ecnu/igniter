@@ -145,7 +145,7 @@ def multiinference(path,model,kernels):
     idletime=multimean(idlep,dur)
     activetime=dur[0]-idletime
     print(activetime)
-    saverecords(model,"activetime_5",activetime)
+    saverecords(model,"activetime_2",activetime)
 
 def loadprofile(path):
     profile = {}
@@ -172,7 +172,7 @@ if __name__ == '__main__':
         sysprocess()
     elif(sys.argv[3]=="1"):
         soloinference(sys.argv[1],sys.argv[2],kernels[sys.argv[2]])
-    elif(sys.argv[3]=="5"):
+    elif(sys.argv[3]=="2"):
         multiinference(sys.argv[1],sys.argv[2],kernels[sys.argv[2]])
     #idle=[]
     #for i in range(len(sep)):

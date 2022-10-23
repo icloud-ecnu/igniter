@@ -16,7 +16,6 @@ a=1
 while(($a<=5))
 do
     nsys profile -t cuda -s none --export=sqlite --force-overwrite=true -o data/v100_sysidletime_"$a" ./conperf $a $model  
-    
     let a+=1
 done
 fi

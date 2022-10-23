@@ -76,6 +76,7 @@ python3 computeBandwidth.py
 ~~~shell
 ./power_t_freq 1530 # 1530 is the highest frequency of the V100 GPU
 # 1590 is the highest frequency of the T4 GPU
+./coninference
 ~~~
 #### Computing the kernel of different models:
 
