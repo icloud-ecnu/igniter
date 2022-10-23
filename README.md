@@ -106,7 +106,7 @@ vgg19     29
 ./soloinference vgg19
 ~~~
 
-`activetime_5`,`power_5`,`frequency_5`
+`activetime_2`,`power_2`,`frequency_2`
 
 ~~~shell
 ./multiinference alexnet
@@ -128,6 +128,10 @@ vgg19     29
 ./model_l2caches.sh ssd
 ./model_l2caches.sh vgg19 
 ~~~
+#### Copying config to Algorithm directory
+~~~
+cp config ../../Algorithm/config
+~~~
 
 The configured file is shown in `i-Gniter/Algorithm/config`, which is the result of running on the V100 GPU.
 
@@ -135,7 +139,7 @@ The configured file is shown in `i-Gniter/Algorithm/config`, which is the result
 
 ```
 cd i-Gniter/Algorithm
-python3 start.py
+python3 start.py -f 1590 -p 300 -s 80 #(1590,300,80) is the config of V100 GPU. 
 python3 igniter-algorithm.py
 ```
 After you run the script, you will get the GPU resources provisioning plan, which is a JSON config file. The configuration will specify models, inference arrival rates, SLOs, GPU resources and batches. The file will be used in Performance Measurement part to measuring performance.
