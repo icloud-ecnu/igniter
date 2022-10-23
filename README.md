@@ -78,6 +78,10 @@ python3 computeBandwidth.py
 # 1590 is the highest frequency of the T4 GPU
 ./coninference
 ~~~
+#### Getting the input and output size of different models:
+~~~shell
+python3 getDataSize.py
+~~~
 #### Computing the kernel of different models:
 
 ~~~shell
