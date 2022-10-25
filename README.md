@@ -64,7 +64,7 @@ python3 model_onnx.py
 ~~~shell
 source start.sh
 ~~~
-#### Computing bandwidth
+#### Computing bandwidth:
 
 ~~~shell
 cd tools
@@ -89,14 +89,6 @@ python3 getDataSize.py
 ./l2cache resnet50
 ./l2cache ssd
 ./l2cache vgg19
-~~~
-After you run the scripts, you will get the number of kernels of four models on V100.
-~~~ 
-model     kernel 
-alexnet   20
-resnet50  80
-ssd       93
-vgg19     29
 ~~~
 
 #### Geting the parameters for each model:
