@@ -201,3 +201,16 @@ slo_vio: 0.0 %
 ## Publication
 
 Fei Xu, Jianian Xu, Jiabin Chen, Li Chen, Ruitao Shang, Zhi Zhou, Fangming Liu, "[iGniter: Interference-Aware GPU Resource Provisioning for Predictable DNN Inference in the Cloud](https://github.com/icloud-ecnu/igniter/raw/main/pdf/igniter.pdf)," submitted to IEEE Transactions on Parallel and Distributed Systems, 2022.
+ 
+We have uploaded the paper to [arxiv](https://arxiv.org/abs/2211.01713), and we would encourage anybody interested in our work to cite our paper.
+
+```
+@misc{xu2022igniter,
+    title={iGniter: Interference-Aware GPU Resource Provisioning for Predictable DNN Inference in the Cloud},
+    author={Fei Xu and Jianian Xu and Jiabin Chen and Li Chen and Ruitao Shang and Zhi Zhou and Fangming Liu},
+    year={2022},
+    eprint={2211.01713},
+    archivePrefix={arXiv},
+    primaryClass={cs.DC}
+}
+```
