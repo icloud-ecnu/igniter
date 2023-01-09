@@ -137,6 +137,8 @@ if __name__ == "__main__":
         slo_file = get_slo_file(models[i], resources[i], batches[i])
         slo_file = os.path.join(os.path.join(save_dir, str(i + 1)), slo_file)
 
-        print(models[i] + ":" + str(resources[i]) + " " + str(batches[i]))
-        print("[throughout_per_second, gpu_latency_ms]: {}".format(durationps(perf_file)))
-        print("slo_vio: {} %".format(slo_vio(slo_file, slos[i], strip_time)))
+        print(models[i] + ":")
+        print("[gpu_resource, batch, throughout_per_second, gpu_latency_ms, slo_vio]: ")
+        tps, gls = durationps(perf_file)
+        print("[" + str(resources[i]) + "%, " + str(batches[i]) + ", " + str(tps) + ", "+ str(gls) + ", " + str(slo_vio(slo_file, slos[i], strip_time)) + "%]")
+        print()

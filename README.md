@@ -183,25 +183,25 @@ python3 evaluation.py -i ./input_data -t 10 -c ../Algorithm/config_gpu1.json
 ```
 
 ### Understanding the Results
-After the program runs, the information and running results of each model will be output on the screen. This slo_vio is expressed as a percentage.
+After the program runs, the information and running results of each model will be output on the screen. 
 ```
-alexnet_dynamic:10.0 4
-[throughout_per_second, gpu_latency_ms]: (500.0, 6.612)
-slo_vio: 0.05 %
-resnet50_dynamic:30.0 8
-[throughout_per_second, gpu_latency_ms]: (400.0, 18.458)
-slo_vio: 0.01 %
-vgg19_dynamic:37.5 6
-[throughout_per_second, gpu_latency_ms]: (199.2, 27.702)
-slo_vio: 0.0 %
+alexnet_dynamic:
+[gpu_resource, batch, throughout_per_second, gpu_latency_ms, slo_vio]: 
+[10.0%, 4, 500.0, 6.612, 0.05%]
+
+resnet50_dynamic:
+[gpu_resource, batch, throughout_per_second, gpu_latency_ms, slo_vio]: 
+[30.0%, 8, 400.0, 18.458, 0.01%]
+
+vgg19_dynamic:
+[gpu_resource, batch, throughout_per_second, gpu_latency_ms, slo_vio]: 
+[37.5%, 6, 199.2, 27.702, 0.0%]
 ```
-
-
 
 ## Publication
 
 Fei Xu, Jianian Xu, Jiabin Chen, Li Chen, Ruitao Shang, Zhi Zhou, Fangming Liu, "[iGniter: Interference-Aware GPU Resource Provisioning for Predictable DNN Inference in the Cloud](https://github.com/icloud-ecnu/igniter/raw/main/pdf/igniter.pdf)," to appear in IEEE Transactions on Parallel and Distributed Systems, 2022.
- 
+
 We have uploaded the paper to [arxiv](https://arxiv.org/abs/2211.01713), and we would encourage anybody interested in our work to cite our paper. After our paper is published in an upcoming issue of IEEE TPDS, we'll change the bibliography below within several months.
 
 ```
