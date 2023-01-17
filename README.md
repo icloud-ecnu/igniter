@@ -45,7 +45,7 @@ pip install -r requirements.txt
 ```
 ### Profiling
 
-注意⚠️：
+Tips⚠️：
 
 * The profile gets the parameters configured, and for now it can only be guaranteed to work properly on T4 and V100
 * If you need to use it on other GPUs, you may need to pay attention to the calculation of hardware parameters such as `activetime_2` `activetime_1` `idletime_1`.
