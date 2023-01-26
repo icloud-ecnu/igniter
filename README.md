@@ -205,17 +205,19 @@ vgg19_dynamic:
 
 ## Publication
 
-Fei Xu, Jianian Xu, Jiabin Chen, Li Chen, Ruitao Shang, Zhi Zhou, Fangming Liu, "[iGniter: Interference-Aware GPU Resource Provisioning for Predictable DNN Inference in the Cloud](https://github.com/icloud-ecnu/igniter/raw/main/pdf/igniter.pdf)," to appear in IEEE Transactions on Parallel and Distributed Systems, 2022.
+Fei Xu, Jianian Xu, Jiabin Chen, Li Chen, Ruitao Shang, Zhi Zhou, Fangming Liu, "[iGniter: Interference-Aware GPU Resource Provisioning for Predictable DNN Inference in the Cloud](https://ieeexplore.ieee.org/document/10002315)," IEEE Transactions on Parallel and Distributed Systems, 2023, 34(3): 812-827. DOI: 10.1109/TPDS.2022.3232715.
 
-We have uploaded the paper to [arxiv](https://arxiv.org/abs/2211.01713), and we would encourage anybody interested in our work to cite our paper. After our paper is published in an upcoming issue of IEEE TPDS, we'll change the bibliography below within several months.
+We have also uploaded our paper to [arxiv](https://arxiv.org/abs/2211.01713), and we would encourage anybody interested in our work to cite our paper. Our paper has been published in IEEE TPDS, and we change the bibliography as below.
 
 ```
-@misc{xu2022igniter,
-    title={iGniter: Interference-Aware GPU Resource Provisioning for Predictable DNN Inference in the Cloud},
-    author={Fei Xu and Jianian Xu and Jiabin Chen and Li Chen and Ruitao Shang and Zhi Zhou and Fangming Liu},
-    year={2022},
-    eprint={2211.01713},
-    archivePrefix={arXiv},
-    primaryClass={cs.DC}
+@article{xu2023igniter,
+  title={iGniter: Interference-Aware GPU Resource Provisioning for Predictable DNN Inference in the Cloud},
+  author={Xu, Fei and Xu, Jianian and Chen, Jiabin and Chen, Li and Shang, Ruitao and Zhou, Zhi and Liu, Fangming},
+  journal={IEEE Transactions on Parallel \& Distributed Systems},
+  volume={34},
+  number={03},
+  pages={812--827},
+  year={2023},
+  publisher={IEEE Computer Society}
 }
 ```
