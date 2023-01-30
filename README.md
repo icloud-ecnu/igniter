@@ -136,14 +136,30 @@ cp config ../../Algorithm/config
 
 The configured file is shown in `i-Gniter/Algorithm/config`, which is the result of running on the V100 GPU.
 
-### Obtaining the GPU resources provisioning plan
+
+
+### Start the iGniter server
 
 ```
 cd i-Gniter/Algorithm
 python3 start.py -f 1590 -p 300 -s 80 #(1590,300,80) is the config of V100 GPU. 
-python3 igniter-algorithm.py
+python3 iGniterPortal.py 
 ```
-After you run the script, you will get the GPU resources provisioning plan, which is a JSON config file. The configuration will specify models, inference arrival rates, SLOs, GPU resources and batches. The file will be used in Performance Measurement part to measuring performance.
+After you run the script, the iGniter server has been started and is listening for client requests.
+
+### Start the iGniter client
+
+~~~bash
+cd i-Gniter/Launch
+python3 iGniterClientWrapper.py # You can pass “-m” to set the model request configuration
+~~~
+
+After you run the script, the iGniter client is started and will send requests to the iGniter server.
+
+After you run the script, you will get the GPU resources provisioning plan, which is a JSON config file. The configuration will specify models, inference arrival rates, SLOs, GPU resources and batches. The file will be used in Performance Measurement part to measuring performance. The server will also start `triton server` and return the information to the client, and the client will start `triton client` to send requests to the corresponding server based on the obtained information.
+
+The JSON config file is shown below, and the file is placed in the `i-Gniter/Algorithm` directory.
+
 ```
 {
   "models": ["alexnet_dynamic", "resnet50_dynamic", "vgg19_dynamic"], 
@@ -154,7 +170,8 @@ After you run the script, you will get the GPU resources provisioning plan, whic
 }
 ```
 ### Downloading Model Files
-Running the script to download the model files.
+
+Running the script to download the model files. By the way, the models downloaded via `fetch_models.sh` are generated under V100, if the GPU is not V100 then the models need to be regenerated.
 ```
 cd i-Gniter/Launch/model/
 ./fetch_models.sh
