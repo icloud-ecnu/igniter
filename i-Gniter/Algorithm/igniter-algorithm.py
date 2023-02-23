@@ -253,6 +253,8 @@ def alloc_gpus(inference, batch, slo, ra_ij, r_lower, w, j):
 
 
 def algorithm(inference, slo, rate):
+    for i in range(len(inference)):
+        print(inference[i].name,slo[i],rate[i])
     # inference: models
 
     # Initialize:
@@ -381,7 +383,39 @@ if __name__ == '__main__':
     models = []
     model2 = {}
     j = 0
-    for i in context.models:
+    # motivation example
+    # model0: AlexNet, model1: ResNet-50, model2: VGG-19
+    # workloads = [models[0], models[1], models[2]]
+    # SLOs = [15, 40, 60]
+    # rates = [500, 400, 200]
+    """
+    python3 igniter-algorithm.py -s 
+    """
+
+    parse = argparse.ArgumentParser()
+    parse.add_argument(
+        "-m",
+        "--model_slo_rate",
+        type=str,
+        action="append",
+        help='Inputs include the model, latency constraints and request rates in this form [model:slo:rate]'
+    )
+    FLAGS = parse.parse_args()
+    SLOs = [15, 40, 60]
+    rates = [500, 400, 200]
+    model_list = ["alexnet", "resnet50", "vgg19"]
+    if FLAGS.model_slo_rate:
+        print(FLAGS.model_slo_rate)
+        SLOs = []
+        rates = []
+        model_list = []
+        for model_config in FLAGS.model_slo_rate:
+            model,slo,rate = model_config.split(":")
+            model_list.append(model)
+            SLOs.append(int(slo))
+            rates.append(int(rate))
+
+    for i in model_list:
         m = Model()
         m.name = i + "_dynamic"
         m.kernels = profile[i]["kernel"]
@@ -399,29 +433,13 @@ if __name__ == '__main__':
         models.append(m)
         model2[i] = m
 
-    # motivation example
-    # model0: AlexNet, model1: ResNet-50, model2: VGG-19
-    # workloads = [models[0], models[1], models[2]]
-    # SLOs = [15, 40, 60]
-    # rates = [500, 400, 200]
-
-    parse = argparse.ArgumentParser()
-    parse.add_argument(
-        "-s",
-        "--slos",
-        type=str,
-    )
-    parse.add_argument(
-        "-r",
-        "--rates",
-        type=str,
-    )
-    FLAGS = parse.parse_args()
-    SLOs = [15, 40, 60]
-    rates = [500, 400, 200]
-    if FLAGS.slos:
-        SLOs = [int(x) for x in FLAGS.slos.split(":")]
-    if FLAGS.rates:
-        rates = [int(x) for x in FLAGS.rates.split(":")]
     workloads = [models[i] for i in range(len(SLOs))]
     algorithm(workloads, SLOs, rates)
+
+"""
+alexnet_dynamic 15 500
+resnet50_dynamic 40 400
+vgg19_dynamic 60 200
+
+python3 igniter-algorithm.py -m alexnet:15:500 -m vgg19:60:200 -m resnet50:40:400 
+"""

@@ -38,17 +38,49 @@ Given a fixed supply of L2 cache space on a GPU device, a higher GPU L2 cache ut
 ## Getting Started
 
 ### Requirements
-```
+```bash
 cd i-Gniter
 python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
-### Profiling
+### Downloading Docker Image From NGC
+
+We use the Triton as our inference server. Before you can use the Triton Docker image you must install Docker. In order to use a GPU for inference, you must also install the [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker).
+
+```bash
+docker pull nvcr.io/nvidia/tritonserver:21.07-py3
+docker pull nvcr.io/nvidia/tritonserver:21.07-py3-sdk
+```
+
+### Downloading Model Files
+
+Running the script to download the model files. By the way, the models downloaded via `fetch_models.sh` are generated under V100, if the GPU is not V100 then the models need to be regenerated. 
+
+```
+cd i-Gniter/Launch/model/
+./fetch_models.sh
+```
+
+### Real Input Data
+
+You can provide data to be used with every inference request made by program in a JSON file. The program will use the provided data in a round-robin order when sending inference requests. Skip this section if you want to use random data for inference, otherwise run the following command to generate JSON files from a set of real pictures. You need to prepare your own real pictures. In the addition, the name of JSON files need to be the same as your model name.
+
+```
+cd i-Gniter/Launch
+python3 data_transfer.py -c 1000 -d /your/pictures/directory -f resnet50_dynamic.json -k actual_input_resnet50 -s 3:224:224
+python3 data_transfer.py -c 1000 -d /your/pictures/directory -f vgg19_dynamic.json    -k actual_input_vgg19    -s 3:224:224
+python3 data_transfer.py -c 1000 -d /your/pictures/directory -f alexnet_dynamic.json  -k actual_input_alexnet  -s 3:224:224
+python3 data_transfer.py -c 558  -d /your/pictures/directory -f ssd_dynamic.json      -k actual_input_ssd      -s 3:300:300
+```
+
+### Profiler
+
+The profiler is only tested on T4 and V100 now. If you want to use it on other GPUs, you may need to pay attention to the hardware parameters such as `activetime_2` , `activetime_1` and ` idletime_1`. If the GPU is V100, you can skip this part. We have already provided a config file profiled on the V100.
 
 #### Profiling environment
 
-* Driver Version: 465.19.01  
-* CUDA Version: 11.3   
+* Driver Version: 470
+* CUDA Version: 11.3 
 * TensorRT Version: 8.0.1.6
 * cuDNN Version: 8.2.0
 
@@ -59,130 +91,75 @@ cd i-Gniter/Profile
 python3 model_onnx.py 
 ./onnxTOtrt.sh
 ~~~
+
 #### Initializing:
 
 ~~~shell
 source start.sh
 ~~~
-#### Computing bandwidth:
-
-~~~shell
-cd tools
-python3 computeBandwidth.py
-~~~
 
 #### Profiling hardware parameters:
 
-~~~shell
+~~~bash
+cd tools
+python3 computeBandwidth.py
 ./power_t_freq 1530 # 1530 is the highest frequency of the V100 GPU
 # 1590 is the highest frequency of the T4 GPU
 ./coninference
 ~~~
-#### Getting the input and output size of different models:
-~~~shell
-python3 getDataSize.py
-~~~
-#### Computing the kernel of different models:
 
-~~~shell
+#### Profiling model parameters:
+
+~~~bash
+python3 getDataSize.py # Getting the input and output size of different models.
+# Computing the kernel of different models.
 ./l2cache alexnet 
 ./l2cache resnet50
 ./l2cache ssd
 ./l2cache vgg19
-~~~
-
-#### Geting the parameters for each model:
-
- `idletime_1`, `activetime_1`,`transferdata` 
-
-~~~shell
+# Computing the model parameters.
 ./soloinference alexnet
 ./soloinference resnet50
 ./soloinference ssd
 ./soloinference vgg19
-~~~
-
-`activetime_2`,`power_2`,`frequency_2`
-
-~~~shell
 ./multiinference alexnet
 ./multiinference resnet50
 ./multiinference ssd
 ./multiinference vgg19
-~~~
-`GPU latency`, `inference latency`, `power`, `frequency`
-~~~shell
 ./recordpower.sh alexnet
 ./recordpower.sh resnet50
 ./recordpower.sh ssd
 ./recordpower.sh vgg19
-~~~
-`l2caches`
-~~~
 ./model_l2caches.sh alexnet
 ./model_l2caches.sh resnet50
 ./model_l2caches.sh ssd
 ./model_l2caches.sh vgg19 
 ~~~
+
 #### Copying config to Algorithm directory
+
 ~~~
 cp config ../../Algorithm/config
 ~~~
 
 The configured file is shown in `i-Gniter/Algorithm/config`, which is the result of running on the V100 GPU.
 
-### Obtaining the GPU resources provisioning plan
 
-```
-cd i-Gniter/Algorithm
-python3 start.py -f 1590 -p 300 -s 80 #(1590,300,80) is the config of V100 GPU. 
-python3 igniter-algorithm.py
-```
-After you run the script, you will get the GPU resources provisioning plan, which is a JSON config file. The configuration will specify models, inference arrival rates, SLOs, GPU resources and batches. The file will be used in Performance Measurement part to measuring performance.
-```
-{
-  "models": ["alexnet_dynamic", "resnet50_dynamic", "vgg19_dynamic"], 
-  "rates": [500, 400, 200], 
-  "slos": [7.5, 20.0, 30.0], 
-  "resources": [10.0, 30.0, 37.5], 
-  "batches": [4, 8, 6]
-}
-```
-### Downloading Model Files
-Running the script to download the model files.
-```
-cd i-Gniter/Launch/model/
-./fetch_models.sh
-```
 
-### Downloading Docker Image From NGC
-We use the Triton as our inference server. Before you can use the Triton Docker image you must install Docker. In order to use a GPU for inference, you must also install the [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker).
-```
-docker pull nvcr.io/nvidia/tritonserver:21.07-py3
-docker pull nvcr.io/nvidia/tritonserver:21.07-py3-sdk
-```
+### Performance Measurement Tool
 
-### Real Input Data
-You can provide data to be used with every inference request made by program in a JSON file. The program will use the provided data in a round-robin order when sending inference requests. Skip this section if you want to use random data for inference, otherwise run the following command to generate JSON files from a set of real pictures. You need to prepare your own real pictures. In the addition, the name of JSON files need to be the same as your model name.
-```
-cd i-Gniter/Launch
-python3 data_transfer.py -c 1000 -d /your/pictures/directory -f resnet50_dynamic.json -k actual_input_resnet50 -s 3:224:224
-python3 data_transfer.py -c 1000 -d /your/pictures/directory -f vgg19_dynamic.json    -k actual_input_vgg19    -s 3:224:224
-python3 data_transfer.py -c 1000 -d /your/pictures/directory -f alexnet_dynamic.json  -k actual_input_alexnet  -s 3:224:224
-python3 data_transfer.py -c 558  -d /your/pictures/directory -f ssd_dynamic.json      -k actual_input_ssd      -s 3:300:300
-```
+If you do not want to run the whole system, you can just use this tool to evaluate the placement configuration generated by the `igniter-algorithm.py`. 
 
-### Performance Measurement
 If you want to use the random data,
 ```
 python3 evaluation.py -t 10 -c ../Algorithm/config_gpu1.json
 ```
-If you want to use the real data,
+If you want to use real data,
 ```
 python3 evaluation.py -i ./input_data -t 10 -c ../Algorithm/config_gpu1.json
 ```
 
-### Understanding the Results
+#### Understanding the Results
 After the program runs, the information and running results of each model will be output on the screen. 
 ```
 alexnet_dynamic:
@@ -197,6 +174,45 @@ vgg19_dynamic:
 [gpu_resource, batch, throughout_per_second, gpu_latency_ms, slo_vio]: 
 [37.5%, 6, 199.2, 27.702, 0.0%]
 ```
+
+
+
+### iGniter System
+
+#### Start the iGniter server
+
+```bash
+cd i-Gniter/Algorithm
+python3 start.py -f 1590 -p 300 -s 80 # (1590,300,80) is the config of V100 GPU. 
+python3 iGniterPortal.py 
+```
+
+After you run the script, the iGniter server has been started and is listening for client requests.
+
+#### Start the iGniter client
+
+~~~bash
+cd i-Gniter/Launch
+python3 iGniterClientWrapper.py # You can pass “-m” to set the model request configuration
+~~~
+
+After you run the script, the iGniter client is started and will send requests to the iGniter server.
+
+After the client sends the request, the server processes the request and generates a GPU resource provisioning plan, which is a JSON config file. The configuration will specify models, inference arrival rates, SLOs, GPU resources, and batches. 
+
+The JSON config file is shown below, and the file is placed in the `i-Gniter/Algorithm` directory.
+
+```json
+{
+  "models": ["alexnet_dynamic", "resnet50_dynamic", "vgg19_dynamic"], 
+  "rates": [500, 400, 200], 
+  "slos": [7.5, 20.0, 30.0], 
+  "resources": [10.0, 30.0, 37.5], 
+  "batches": [4, 8, 6]
+}
+```
+
+
 
 ## Publication
 
