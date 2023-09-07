@@ -77,7 +77,7 @@ $t_{\text {act }}^{i j}=k_{\text {act }}^{i} \cdot\left(1+\alpha_{\text {cache }
 
   * Install TensorRT.
 
-    ![image-20230129133923483](images/tensorRT.png)
+    ![](images/tensorRT.png)
 
     ~~~bash
     version="8.0.1.6"
