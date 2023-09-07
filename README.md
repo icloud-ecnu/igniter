@@ -111,10 +111,8 @@ $t_{\text {act }}^{i j}=k_{\text {act }}^{i} \cdot\left(1+\alpha_{\text {cache }
   * Test if `trtexc` install successful.
 
     ~~~bash
-    trtexec # The following message appears to indicate a successful installation.
+    trtexec
     ~~~
-
-    ![test_trtexec](images/test_trtexec.png)
 
   * Install docker.
 
