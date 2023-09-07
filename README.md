@@ -77,8 +77,6 @@ $t_{\text {act }}^{i j}=k_{\text {act }}^{i} \cdot\left(1+\alpha_{\text {cache }
 
   * Install TensorRT.
 
-    ![](images/tensorRT.png)
-
     ~~~bash
     version="8.0.1.6"
     tar xzvf tensorrt-8.0.1.6.linux.x86_64-gnu.cuda-11.3.cudnn8.2.tar.gz
@@ -92,8 +90,6 @@ $t_{\text {act }}^{i j}=k_{\text {act }}^{i} \cdot\left(1+\alpha_{\text {cache }
     ~~~
 
   * Install cuDNN.
-
-    ![image-20230129133923483](images/cuDNN.png)
 
     ~~~bash
     tar -xzvf cudnn-11.3-linux-x64-v8.2.0.53.tgz # Refer to the specific name of the file in this directory
