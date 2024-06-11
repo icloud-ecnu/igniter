@@ -43,7 +43,7 @@ $t_{\text {act }}^{i j}=k_{\text {act }}^{i} \cdot\left(1+\alpha_{\text {cache }
 * Description of the required operating system:
   - Ubuntu 18.04
 * Required software libraries: Triton, NVIDIA Driver, cuDNN, CUDA, Python3, TensorRT, Docker, NVIDIA Container Toolkit, Torchvision, Torch, Pandas, Scikit-image, Numpy, Scipy, Pillow.
-* Input dataset required for executing code or generating input data: ImageNet dataset and VOC2012 dataset.
+* Input dataset required for executing code or generating input data: [ImageNet](https://image-net.org/download.php) dataset and [VOC2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/) dataset.
 
 
 
@@ -254,7 +254,7 @@ python3 start.py -f 1590 -p 300 -s 80 # (1590,300,80) is the config of V100 GPU.
 ~~~
 
 #### Profiling model parameters:
-
+We profiling the model parameters of 4 models: **AlexNet, VGG-19, ResNet-50 and SSD**.
 ~~~bash
 python3 getDataSize.py # Getting the input and output size of different models.
 # Computing the kernel of different models.
@@ -295,7 +295,7 @@ The configured file is shown in `i-Gniter/Algorithm/config`, which is the result
 
 #### Real Input Data
 
-You can provide data to be used with every inference request made by program in a JSON file. The program will use the provided data in a round-robin order when sending inference requests. Skip this section if you want to use random data for inference, otherwise run the following command to generate JSON files from a set of real pictures. You need to prepare your own real pictures. In the addition, the name of JSON files need to be the same as your model name.
+You can provide data to be used with every inference request made by program in a JSON file. The program will use the provided data in a round-robin order when sending inference requests. Skip this section if you want to use random data for inference (which will not affect the experimental results), otherwise run the following command to generate JSON files from a set of real pictures (from [ImageNet](https://image-net.org/download.php) and [VOC2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/)). The name of JSON files need to be the same as your model name.
 
 ```
 cd i-Gniter/Launch
@@ -374,9 +374,11 @@ The JSON config file is shown below, and the file is placed in the `i-Gniter/Alg
 
 ## Reproducibility of Experiments
 
+In order to reproduce our experiments, we provide two methods, the first one is to reproduce them with the data we give, which can be seen in `igniter/i-Gniter/Experiments`. The second method is specified in each experiment.
+
 ### Experiment 1: Verification of Inference Latency Prediction Accuracy under Different GPU Resources
 
-First, we need to measure the inference latency of two models, VGG-19 and SSD, under four different resource allocation scenarios. The batch size of both models is set to 3. The four resource allocation scenarios are 20%, 40%, 60% and 80% of the resources for VGG-19, and the remaining resources for SSD.
+This experimental surfacing requires a real startup of the GPU machine to get the experimental data. First, we need to measure the inference latency of two models, VGG-19 and SSD, under four different resource allocation scenarios. The batch size of both models is set to 3. The four resource allocation scenarios are 20%, 40%, 60% and 80% of the resources for VGG-19, and the remaining resources for SSD.
 
 The specific experimental steps are as follows:
 
@@ -386,52 +388,53 @@ The specific experimental steps are as follows:
 
 3. We use the DNN latency prediction model of gpu-lets+ to predict the inference latency, input four cases, and ignore the tuning process of the algorithm to obtain the respective prediction results.
 
-Finally, we plot the results obtained by the three strategies and present them in graphical form as shown in Figure 11.
+Finally, we record the results obtained from the three strategies in a table, as referenced in `igniter/i-Gniter/Experiments/Figure11_SSD.xlsx`. We then use `getFigure11.py` to generate the corresponding graph, which is presented as Figure 11.
 
 ### Experiment 2:Verification of Inference Latency Prediction Accuracy with Different Batch Sizes
 
-In this experiment, the inference latencies of two models (VGG-19 and SSD) with different batch size settings under three different strategies need to be measured. In this experiment, the resource allocation is set to 50% for VGG-19 and 50% for SSD. The four batch size settings are VGG-19:SSD = (1, 1), VGG-19:SSD = (3, 3), VGG-19:SSD = (9, 9), and VGG-19:SSD = (27, 27).
+This experimental surfacing requires a real startup of the GPU machine to get the experimental data.  In this experiment, the inference latencies of two models (VGG-19 and SSD) with different batch size settings under three different strategies need to be measured. In this experiment, the resource allocation is set to 50% for VGG-19 and 50% for SSD. The four batch size settings are VGG-19:SSD = (1, 1), VGG-19:SSD = (3, 3), VGG-19:SSD = (9, 9), and VGG-19:SSD = (27, 27).
 
 1. We use Triton Server to measure the inference latency when the two models are co-located.
 2. We input these four cases directly into the iGniter prediction algorithm to obtain the predicted inference latencies when the two models are co-located, ignoring the tuning process of the algorithm.
 3. We input these four cases into the DNN latency prediction model of gpu-lets+ to obtain the predicted inference latency when the two models are co-located, ignoring the adjustment process of this algorithm.
 
-Finally, we graph the results obtained from the three strategies, as shown in Figure 12.
+Finally, we record the results obtained from the three strategies in a table, as referenced in `igniter/i-Gniter/Experiments/Figure12_AlexNet.xlsx`. We then use `getFigure12.py` to generate the corresponding graph, which is presented as Figure 12.
 
 ### Experiment 3: Verification of Inference Latency Prediction Accuracy with More (4+) Inference workloads Co-Located
 
-To compare the difference between the inference latencies predicted using iGniter at co-location and the actual inference latencies observed for the AlexNet, ResNet-50, VGG-19, and SSD models, we took the following steps:
+This experimental surfacing requires a real startup of the GPU machine to get the experimental data. To compare the difference between the inference latencies predicted using iGniter at co-location and the actual inference latencies observed for the AlexNet, ResNet-50, VGG-19, and SSD models, we took the following steps:
 
 1. Experimental setup: Fix the GPU resources of the four models to 25% and the batch size to 3.
 2. Measurement of inference latency: Use Triton Server to measure the inference latency when these four models are co-located separately, ignoring the tuning process of the algorithm.
 3. Prediction of inference latency: Use iGniter's prediction algorithm to predict the inference latency when the four models are co-located, ignoring the tuning process of the algorithm.
-4. Presentation of results: The results obtained from the two strategies are plotted in a graph for comparison and analysis. Figure 13 shows the results.
+
+Finally, the outcomes of the two strategies are recorded in a table, as referenced in `igniter/i-Gniter/Experiments/Figure13.xlsx`. The `getFigure13.py` script is used to plot these results, and they are presented graphically, as shown in Figure 13.
 
 ### Experiment 4: Verification of iGniter's Ability to Ensure DNN Inference Latency SLO
 
-Experimental setup: We set Service Level Objectives (SLOs) for the SSD model and the VGG-19 model, where the SSD model has an SLO latency of 25 ms and a request rate of 150 req/sec, and the VGG-19 model has an SLO latency of 40 ms and a request rate of 200 req/sec. We deployed both models together.
+Experimental setup: This experimental surfacing requires a real startup of the GPU machine to get the experimental data. We set Service Level Objectives (SLOs) for the SSD model and the VGG-19 model, where the SSD model has an SLO latency of 25 ms and a request rate of 150 req/sec, and the VGG-19 model has an SLO latency of 40 ms and a request rate of 200 req/sec. We deployed both models together.
 
 iGniter measurements: After performing the model setup, we started iGniter's portal and continued the measurements for 60 seconds. During these 60 seconds of measurements, we recorded the inference latency and request throughput of the SSD model, and recorded the GPU resource allocation and batch size configuration of the SSD model under the iGniter policy.
 
 GSLICE+ measurements: Again, after performing the model setup, we launched the GSLICE+ algorithm script and continued the measurements for 60 seconds. During these 60 seconds of measurements, we recorded the inference latency and request throughput of the SSD model, and recorded the GPU resource allocation and batch size configuration of the SSD model under the GSLICE+ policy.
 
-Results plotting: We plot the inference latency and request throughput of the SSD model obtained from the iGniter policy and GSLICE+ policy measurements as Figure 15, and the GPU resource and batch size configurations of the SSD model recorded by the two policies as Figure 16. finally, we perform a comparative analysis of the effects of the two policies.
+Finally, we record the inference latency and request throughput of the SSD model obtained from the iGniter and GSLICE+ strategies in a table referenced at `igniter/i-Gniter/Experiments/Figure15Down.xlsx`. The data is visualized in Figure 15 using the script `getFigure15.py`. We also log the GPU resource utilization and batch size configurations of the SSD model under both strategies in another table, found at `igniter/i-Gniter/Experiments/Figure16Down.xlsx`, and depict this information in Figure 16 by running `getFigure16.py`.
 
 ### Experiment 5: Handling Latency Prediction Error in Inference
 
-Experimental settings: The following settings were applied to the three models, AlexNet, ResNet-50 and SSD: for AlexNet, we set its SLO latency to 10 ms and request rate to 1200 req/sec; for ResNet-50, we set its SLO latency to 30 ms and request rate to 600 req/sec; for SSD, we set its SLO latency was set to 40 ms and request rate to 50 requests/sec.
+Experimental settings: This experimental surfacing requires a real startup of the GPU machine to get the experimental data. The following settings were applied to the three models, AlexNet, ResNet-50 and SSD: for AlexNet, we set its SLO latency to 10 ms and request rate to 1200 req/sec; for ResNet-50, we set its SLO latency to 30 ms and request rate to 600 req/sec; for SSD, we set its SLO latency was set to 40 ms and request rate to 50 requests/sec.
 
 Next, we launched the iGniter Portal and entered the above model settings. After running continuously for 20 seconds, we collected the P99 latency data for the process. We found that the GPU resources allocated by the iGniter prediction algorithm for AlexNet could not meet its latency SLO requirement with this setup, i.e., the P99 latency for the first second was 15.6 ms, which exceeded its SLO (i.e., 10 ms).
 
 After this occurred, iGniter's prediction error handling mechanism was triggered. At 1.5 seconds, iGniter switches the inference workload that violates the SLO to the shadow Triton process that allocates more GPU resources.
 
-Finally, we plotted the collected P99 latency data over 20 seconds together with AlexNet's SLO into a time-latency graph (e.g., Figure 17) to evaluate the effect of iGniter's resource allocation.
+Finally, we record the collected P99 latency data over 20 seconds along with the SLO for AlexNet in a table, referencing `igniter/i-Gniter/Experiments/Figure17.xlsx`. We then utilize `getFigure17.py` to plot the time-latency graph (as shown in Figure 17) to evaluate the effectiveness of the iGniter resource allocation.
 
 ### Experiment 6: Optimizing the DNN Inference Cost
 
-First, we need to start 12 workloads and record GPU resource configurations using the gpu-lets+, FFD+, GSLICE+, and iGniter configuration policies, respectively.
+You can use the four algorithms directly to get a preliminary result for this experiment, but `iGniter` and `GSLICE` both have error handling mechanisms, so the solution you get from using the algorithms directly may not be accurate. 
 
-Specifically, for each configuration policy, we need to:
+First, we need to start 12 workloads and record GPU resource configurations using the gpu-lets+, FFD+, GSLICE+, and iGniter configuration policies, respectively. Specifically, for each configuration policy, we need to:
 
 1. Enter the configurations of the 12 workloads into the corresponding algorithm scripts or iGniter Portal;
 2. Launch the script or iGniter Portal;
@@ -439,11 +442,11 @@ Specifically, for each configuration policy, we need to:
 4. Record the GPU resources allocated to these 12 workloads after stabilization;
 5. Record the placement scheme of the W2 inference load.
 
-Finally, the GPU resources assigned to the 12 workloads after stabilization recorded by the four configuration policies are plotted in Figure 18, while the placement scheme of the W2 inference load recorded by the four configuration policies is plotted in Figure 19.
+Finally, the GPU resources assigned to the 12 workloads under four configuration strategies are recorded in a table. This table can be found in `igniter/i-Gniter/Experiments/Figure18.xlsx`. The graph is generated by executing the script `getFigure18.py`. The placement schemes for the W2 inference workload, recorded under the four configuration strategies, are illustrated in Figure 19, which you need to draw manually.
 
 ### Experiment 7: iGniter Performance in Heterogeneous Clusters 
 
-The specific steps are shown below:
+For this experiment you can start the iGniter Portal to get the placement plan, in which we have given the configuration data for the A100, and you can get the configuration data for the other GPUs according to the Profile method we provided above. The specific steps are shown below:
 
 1. Start the 12 workloads in TABLE 3 simultaneously. Provide 15 g4dn.xlarge instances (T4 GPUs) and 6 p3.2xlarge instances (V100 GPUs) as resources for this cluster.
 
@@ -451,17 +454,18 @@ The specific steps are shown below:
 
 3. Launch iGniter Portal, perform resource allocation, and record the placement scheme for the 12 workloads.
 
-Finally, plot the placement scheme as a graph, Fig. 20.
+Finally, plot the placement plan as a graph, Fig. 20.
 
 ### Experiment 8: Runtime Overhead of iGniter
 
-The specific steps are as follows:
+You don't need to actually start the GPU machine for this experiment. The specific steps are as follows:
 
 1. Set the number of model workloads.
 2. Start iGniter's `algorithm-igniter.py`.
 3. Record the memory and computational overhead of the iGniter algorithm.
 4. Repeat steps 1-3 with the number of model workloads ranging from 10 to 1000.
-5. Collect the recorded data and plot it as Figure 21.
+
+The collected data are recorded in tables, which are referenced from `igniter/i-Gniter/Experiments/Figure21Line.xlsx` and `igniter/i-Gniter/Experiments/Figure21Scatter.xlsx`. The graph is generated by invoking `getFigure21.py`.
 
 
 
